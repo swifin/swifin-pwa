@@ -1,23 +1,28 @@
 {
   "name": "swifin-dashboard",
   "version": "1.0.0",
+  "description": "Swifin PWA Dashboard Starter",
+  "main": "index.js",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
+  "author": "Swifin",
+  "license": "MIT",
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.4",
     "@tanstack/react-query": "^5.74.4",
+    "axios": "^1.6.8",
     "ethers": "^6.13.5",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "wagmi": "^2.15.0"
+    "wagmi": "^1.4.5"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.14",
-    "postcss": "^8.4.21",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.4.38",
     "tailwindcss": "^4.1.4"
   }
 }
