@@ -3,7 +3,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import Head from 'next/head';
 import Image from 'next/image';
-import dashboardImage from '../public/dashboard-preview.png';
+
+//import dashboardImage from '../public/dashboard-preview.png';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
@@ -22,13 +23,12 @@ export default function Home() {
         </div>
 
         <div className="bg-gray-100 rounded-lg p-6 shadow">
-          <Image
-            src={dashboardImage}
-            alt="Swifin Dashboard Preview"
-            className="rounded"
-            width={1000}
-            height={600}
-          />
+          <img
+               src="/dashboard-preview.png"
+               alt="Swifin Dashboard Preview"
+               className="rounded w-full"
+           />
+		   
         </div>
 
         {isConnected && (
