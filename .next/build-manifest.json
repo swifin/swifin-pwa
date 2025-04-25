@@ -5,46 +5,46 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/GwAPCPBH1z8NWc6E7yJdu/_buildManifest.js",
-    "static/GwAPCPBH1z8NWc6E7yJdu/_ssgManifest.js"
+    "static/t7fI-Sfh-EuG-2Q9IGjlc/_buildManifest.js",
+    "static/t7fI-Sfh-EuG-2Q9IGjlc/_ssgManifest.js"
   ],
   "rootMainFiles": [],
   "rootMainFilesTree": {},
   "pages": {
     "/": [
-      "static/chunks/webpack-668a5b67a3cf2b95.js",
-      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/webpack-83c13de2eff2d6c6.js",
+      "static/chunks/framework-d33e0fe36067854f.js",
       "static/chunks/main-3e52d18c193b6588.js",
       "static/chunks/pages/index-ab3cc55241c2c604.js"
     ],
     "/_app": [
-      "static/chunks/webpack-668a5b67a3cf2b95.js",
-      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/webpack-83c13de2eff2d6c6.js",
+      "static/chunks/framework-d33e0fe36067854f.js",
       "static/chunks/main-3e52d18c193b6588.js",
-      "static/css/3f084845ffff5647.css",
-      "static/chunks/pages/_app-a5ab09c04cb6bbd6.js"
+      "static/css/33494245ddf34411.css",
+      "static/chunks/pages/_app-deba91d4e223402a.js"
     ],
     "/_error": [
-      "static/chunks/webpack-668a5b67a3cf2b95.js",
-      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/webpack-83c13de2eff2d6c6.js",
+      "static/chunks/framework-d33e0fe36067854f.js",
       "static/chunks/main-3e52d18c193b6588.js",
       "static/chunks/pages/_error-fe80607ae43737e8.js"
     ],
     "/activate-wallet": [
-      "static/chunks/webpack-668a5b67a3cf2b95.js",
-      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/webpack-83c13de2eff2d6c6.js",
+      "static/chunks/framework-d33e0fe36067854f.js",
       "static/chunks/main-3e52d18c193b6588.js",
       "static/chunks/pages/activate-wallet-10f35d228b880dfd.js"
     ],
     "/auth/activate": [
-      "static/chunks/webpack-668a5b67a3cf2b95.js",
-      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/webpack-83c13de2eff2d6c6.js",
+      "static/chunks/framework-d33e0fe36067854f.js",
       "static/chunks/main-3e52d18c193b6588.js",
       "static/chunks/pages/auth/activate-33bd0976bc794ff1.js"
     ],
     "/complete-wallet": [
-      "static/chunks/webpack-668a5b67a3cf2b95.js",
-      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/webpack-83c13de2eff2d6c6.js",
+      "static/chunks/framework-d33e0fe36067854f.js",
       "static/chunks/main-3e52d18c193b6588.js",
       "static/chunks/pages/complete-wallet-62fc7fb458d11816.js"
     ]

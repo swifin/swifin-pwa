@@ -1,6 +1,6 @@
 {
-  "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
+  "/_app": "pages/_app.js",
   "/activate-wallet": "pages/activate-wallet.html",
   "/api/auth/activate": "pages/api/auth/activate.js",
   "/api/swifin/activate": "pages/api/swifin/activate.js",

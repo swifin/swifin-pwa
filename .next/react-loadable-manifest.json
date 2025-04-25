@@ -448,7 +448,7 @@
     "id": 94443,
     "files": [
       "static/chunks/2909.6a3626bba1f407d0.js",
-      "static/chunks/4443.19c2bb3c365ad212.js",
+      "static/chunks/4443.cc771aed11e97131.js",
       "static/chunks/9466.196a8376ab7765ca.js"
     ]
   },
@@ -471,10 +471,10 @@
     ]
   },
   "node_modules/@wagmi/connectors/dist/esm/walletConnect.js -> @walletconnect/ethereum-provider": {
-    "id": 19105,
+    "id": 87737,
     "files": [
       "static/chunks/2909.6a3626bba1f407d0.js",
-      "static/chunks/9105.84b5f2637adc8f49.js"
+      "static/chunks/7737.14736fefe9004ec3.js"
     ]
   },
   "node_modules/@walletconnect/ethereum-provider/dist/index.es.js -> @walletconnect/modal": {
