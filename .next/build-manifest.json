@@ -1,17 +1,53 @@
 {
   "polyfillFiles": [
-    "static/chunks/polyfills.js"
+    "static/chunks/polyfills-42372ed130431b0a.js"
   ],
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/development/_buildManifest.js",
-    "static/development/_ssgManifest.js"
+    "static/yboCxJA27ZqmkUMnfpW9x/_buildManifest.js",
+    "static/yboCxJA27ZqmkUMnfpW9x/_ssgManifest.js"
   ],
   "rootMainFiles": [],
   "rootMainFilesTree": {},
   "pages": {
-    "/_app": []
+    "/": [
+      "static/chunks/webpack-668a5b67a3cf2b95.js",
+      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/main-3e52d18c193b6588.js",
+      "static/chunks/pages/index-ab3cc55241c2c604.js"
+    ],
+    "/_app": [
+      "static/chunks/webpack-668a5b67a3cf2b95.js",
+      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/main-3e52d18c193b6588.js",
+      "static/css/57a356dac9af852b.css",
+      "static/chunks/pages/_app-a5ab09c04cb6bbd6.js"
+    ],
+    "/_error": [
+      "static/chunks/webpack-668a5b67a3cf2b95.js",
+      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/main-3e52d18c193b6588.js",
+      "static/chunks/pages/_error-fe80607ae43737e8.js"
+    ],
+    "/activate-wallet": [
+      "static/chunks/webpack-668a5b67a3cf2b95.js",
+      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/main-3e52d18c193b6588.js",
+      "static/chunks/pages/activate-wallet-10f35d228b880dfd.js"
+    ],
+    "/auth/activate": [
+      "static/chunks/webpack-668a5b67a3cf2b95.js",
+      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/main-3e52d18c193b6588.js",
+      "static/chunks/pages/auth/activate-33bd0976bc794ff1.js"
+    ],
+    "/complete-wallet": [
+      "static/chunks/webpack-668a5b67a3cf2b95.js",
+      "static/chunks/framework-f0f34dd321686665.js",
+      "static/chunks/main-3e52d18c193b6588.js",
+      "static/chunks/pages/complete-wallet-62fc7fb458d11816.js"
+    ]
   },
   "ampFirstPages": []
 }
