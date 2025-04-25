@@ -1,3 +1,4 @@
+// pages/_app.js
 import '@rainbow-me/rainbowkit/styles.css';
 import '../styles/globals.css';
 
@@ -8,7 +9,7 @@ import { polygonMumbai } from 'wagmi/chains';
 
 const config = getDefaultConfig({
   appName: 'Swifin Wallet',
-  projectId: 'YOUR_PROJECT_ID', // From WalletConnect Cloud (can be dummy for now)
+  projectId: 'swifin-app',
   chains: [polygonMumbai],
   transports: {
     [polygonMumbai.id]: http(),

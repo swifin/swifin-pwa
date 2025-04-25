@@ -1,22 +1,40 @@
+// pages/index.js
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import Head from 'next/head';
+import Image from 'next/image';
+import dashboardImage from '../public/dashboard-preview.png';
 
 export default function Home() {
   const { address, isConnected } = useAccount();
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-white p-6">
       <Head>
         <title>Swifin Wallet</title>
-        <link rel="manifest" href="/manifest.json" />
+        <meta name="description" content="Swifin SFNC/SFNL Wallet Dashboard" />
       </Head>
-      <h1 className="text-2xl font-bold mb-4">Swifin SFNC/SFNL Wallet</h1>
-      <ConnectButton />
-      {isConnected && (
-        <p className="mt-4 text-green-700">Connected as: {address}</p>
-      )}
+
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Swifin Wallet</h1>
+          <ConnectButton />
+        </div>
+
+        <div className="bg-gray-100 rounded-lg p-6 shadow">
+          <Image
+            src={dashboardImage}
+            alt="Swifin Dashboard Preview"
+            className="rounded"
+            width={1000}
+            height={600}
+          />
+        </div>
+
+        {isConnected && (
+          <p className="mt-4 text-green-600">Connected: {address}</p>
+        )}
+      </div>
     </div>
   );
 }
-
