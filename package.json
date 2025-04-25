@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "start-clean": "kill $(lsof -t -i:3000) 2>/dev/null; next start"
+
   },
   "author": "Swifin",
   "license": "MIT",

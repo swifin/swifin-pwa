@@ -8,6 +8,7 @@ import { WagmiProvider, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { polygonMumbai } from 'wagmi/chains';
 
+// Only initialize once at top level
 const config = getDefaultConfig({
   appName: 'Swifin Wallet',
   projectId: 'swifin-app',
@@ -23,22 +24,21 @@ function MyApp({ Component, pageProps }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider chains={[polygonMumbai]}>
+          <Head>
+            <title>Swifin Wallet - Empowering Inclusive Prosperity</title>
+            <meta name="description" content="Activate your Swifin Wallet and join the global movement for economic transformation." />
+            <meta property="og:title" content="Swifin Wallet" />
+            <meta property="og:description" content="Activate your Swifin Wallet and join the global movement." />
+            <meta property="og:image" content="/swifin-og-image.png" />
+            <meta name="twitter:card" content="summary_large_image" />
+          </Head>
           <Component {...pageProps} />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );
 }
-
-<Head>
-  <title>Swifin Wallet - Empowering Inclusive Prosperity</title>
-  <meta name="description" content="Activate your Swifin Wallet and join the global movement for economic transformation." />
-  <meta property="og:title" content="Swifin Wallet" />
-  <meta property="og:description" content="Activate your Swifin Wallet and join the global movement." />
-  <meta property="og:image" content="/swifin-og-image.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-</Head>
 
 export default MyApp;
 
