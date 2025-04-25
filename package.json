@@ -18,7 +18,7 @@
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "wagmi": "^1.4.5"
+    "wagmi": "latest"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",
