@@ -8,7 +8,6 @@
     "build": "next build",
     "start": "next start",
     "start-clean": "kill $(lsof -t -i:3000) 2>/dev/null; next start"
-
   },
   "author": "Swifin",
   "license": "MIT",
@@ -22,10 +21,15 @@
     "ethers": "^6.13.5",
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.2",
     "next": "latest",
+    "next-auth": "^4.24.11",
+    "next-connect": "^1.0.0",
     "react": "latest",
     "react-dom": "latest",
-    "wagmi": "latest"
+    "stripe": "^18.0.0",
+    "wagmi": "latest",
+    "xml2js": "^0.6.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.4",
