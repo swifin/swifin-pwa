@@ -4,6 +4,7 @@ export default async function handler(req, res) {
   }
 
   const {
+    swifinId, // ✅ we must pass this now
     name,
     email,
     birthday,
@@ -27,7 +28,7 @@ export default async function handler(req, res) {
       <mem:updateMember>
          <params>
             <principalType>username</principalType>
-            <principal>${adminUsername}</principal>
+            <principal>${swifinId}</principal>
             <name>${name}</name>
             <email>${email}</email>
             <fields>
