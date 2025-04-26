@@ -1,6 +1,6 @@
 // pages/api/admin/get-kyc-submissions.js
 import { getServerSession } from 'next-auth';
-import { db } from '../../../lib/db'; // Example DB connector, adjust if different
+import { db } from '../../lib/db'; // Example DB connector, adjust if different
 
 export default async function handler(req, res) {
   // OPTIONAL: Secure this route with Admin Session (future)

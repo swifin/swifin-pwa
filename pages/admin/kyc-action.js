@@ -1,5 +1,5 @@
 // pages/api/admin/kyc-action.js
-import { db } from '../../../lib/db'; // Example DB connector, adjust if different
+import { db } from '../../lib/db'; // Example DB connector, adjust if different
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
