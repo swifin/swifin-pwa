@@ -9,7 +9,7 @@ export default function LoginPage() {
   const router = useRouter();
 
   const login = async (e) => {
-    e.preventDefault(); // 👈 prevent form reload!
+    e.preventDefault();
     setError('');
     setLoading(true);
     try {
@@ -22,7 +22,12 @@ export default function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         console.log('Login successful:', data);
-        // Redirect to wallet activation page or dashboard
+
+        // ✅ Save to localStorage
+        localStorage.setItem('swifinId', swifinId);
+        localStorage.setItem('profile', JSON.stringify(data.profile));
+
+        // ✅ Redirect
         router.push('/wallet/activate');
       } else {
         const errorData = await response.json();
@@ -68,7 +73,7 @@ export default function LoginPage() {
           )}
 
           <button
-            type="submit" // 👈 important!
+            type="submit"
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-md transition disabled:opacity-50"
           >

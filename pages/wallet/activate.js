@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { countries } from '../../utils/countries'; // adjust if your structure is different
+import { countries } from '../../utils/countries'; // adjust path if needed
 
 export default function WalletActivatePage() {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -17,38 +14,34 @@ export default function WalletActivatePage() {
     city: '',
     country: '',
   });
-
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await fetch('/api/profile'); // you'll create this next if missing
-        if (response.ok) {
-          const data = await response.json();
-          setProfile(data.profile);
-          setFormData({
-            name: data.profile.name || '',
-            email: data.profile.email || '',
-            birthday: data.profile.birthday || '',
-            gender: data.profile.gender || '',
-            mobilePhone: data.profile.mobilePhone || '',
-            address: data.profile.address || '',
-            postalCode: data.profile.postalCode || '',
-            city: data.profile.city || '',
-            country: '', // need user to select explicitly
-          });
-        } else {
-          router.push('/auth/login');
-        }
-      } catch (err) {
-        console.error('Failed to fetch profile:', err);
-        router.push('/auth/login');
-      }
-      setLoading(false);
-    };
+    // ✅ Check localStorage for login
+    const swifinId = localStorage.getItem('swifinId');
+    if (!swifinId) {
+      router.push('/auth/login');
+      return;
+    }
 
-    fetchProfile();
+    const profileStr = localStorage.getItem('profile');
+    if (profileStr) {
+      const profile = JSON.parse(profileStr);
+      setFormData({
+        name: profile.name || '',
+        email: profile.email || '',
+        birthday: profile.birthday || '',
+        gender: profile.gender || '',
+        mobilePhone: profile.mobilePhone || '',
+        address: profile.address || '',
+        postalCode: profile.postalCode || '',
+        city: profile.city || '',
+        country: '', // force user to choose country
+      });
+    }
+    setLoading(false);
   }, []);
 
   const handleChange = (e) => {
@@ -91,10 +84,6 @@ export default function WalletActivatePage() {
         <div className="text-red-500 text-lg">{error}</div>
       </div>
     );
-  }
-
-  if (!profile) {
-    return null;
   }
 
   return (
