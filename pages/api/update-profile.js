@@ -4,7 +4,7 @@ export default async function handler(req, res) {
   }
 
   const {
-    swifinId, // ✅ we must pass this now
+    swifinId, // ✅ Must be passed in Activation Form
     name,
     email,
     birthday,
@@ -90,12 +90,13 @@ export default async function handler(req, res) {
     });
 
     const text = await soapResponse.text();
+    console.log('FULL SOAP RESPONSE:', text);
 
     if (text.includes('<ns2:updateMemberResponse')) {
       return res.status(200).json({ message: 'Profile updated successfully' });
     } else {
-      console.error('SOAP update failed:', text);
-      return res.status(400).json({ message: 'Failed to update profile' });
+      console.error('SOAP update failed. Full response:', text);
+      return res.status(400).json({ message: 'Failed to update profile', soapResponse: text });
     }
   } catch (error) {
     console.error('SOAP Error:', error);
