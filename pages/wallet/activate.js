@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { toast } from 'react-hot-toast'; // 👈 Add toast import
-import { countries } from '../../utils/countries'; // adjust path if needed
+import { toast } from 'react-hot-toast';
+import { countries } from '../../utils/countries'; // adjust if needed
 
 export default function WalletActivatePage() {
   const [formData, setFormData] = useState({
@@ -45,30 +45,48 @@ export default function WalletActivatePage() {
   }, []);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (name === 'mobilePhone') {
+      let newValue = value;
+      if (newValue.length > 0 && !newValue.startsWith('+')) {
+        newValue = '+' + newValue.replace(/^0+/, '');
+      }
+      setFormData({ ...formData, [name]: newValue });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const validateFormData = () => {
     const { name, email, birthday, gender, mobilePhone, address, postalCode, city, country } = formData;
+
     if (!name || !email || !birthday || !gender || !mobilePhone || !address || !postalCode || !city || !country) {
       toast.error('Please complete all fields.');
       return false;
     }
+
     const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!birthdayRegex.test(birthday)) {
       toast.error('Birthday must be in format YYYY-MM-DD.');
       return false;
     }
+
+    const mobileRegex = /^\+\d{10,15}$/;
+    if (!mobileRegex.test(mobilePhone)) {
+      toast.error('Mobile Phone must start with + and contain 10-15 digits. Example: +447000000001');
+      return false;
+    }
+
     if (gender !== '1' && gender !== '2') {
       toast.error('Gender must be selected.');
       return false;
     }
+
     return true;
   };
 
   const handleActivate = async (e) => {
-   /* console.log('Submitting activation form:', formData); */
-
     e.preventDefault();
     const swifinId = localStorage.getItem('swifinId');
 
@@ -136,7 +154,7 @@ export default function WalletActivatePage() {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            placeholder="Email"
+            placeholder="Email Address"
             className="w-full p-3 border border-gray-300 rounded-md"
             required
           />
@@ -164,7 +182,7 @@ export default function WalletActivatePage() {
             name="mobilePhone"
             value={formData.mobilePhone}
             onChange={handleChange}
-            placeholder="Mobile Phone"
+            placeholder="Mobile Phone (e.g., +447000000001)"
             className="w-full p-3 border border-gray-300 rounded-md"
             required
           />
