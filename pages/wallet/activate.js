@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { countries } from '../../utils/countries'; // Adjust the path if needed
+import { countries } from '../../utils/countries'; // adjust path if needed
 
 export default function WalletActivatePage() {
   const [formData, setFormData] = useState({
@@ -19,7 +19,6 @@ export default function WalletActivatePage() {
   const router = useRouter();
 
   useEffect(() => {
-    // ✅ Check if logged in
     const swifinId = localStorage.getItem('swifinId');
     if (!swifinId) {
       router.push('/auth/login');
@@ -38,7 +37,7 @@ export default function WalletActivatePage() {
         address: profile.address || '',
         postalCode: profile.postalCode || '',
         city: profile.city || '',
-        country: '', // force user to choose Country manually
+        country: '',
       });
     }
     setLoading(false);
@@ -50,13 +49,34 @@ export default function WalletActivatePage() {
 
   const handleActivate = async (e) => {
     e.preventDefault();
-    const swifinId = localStorage.getItem('swifinId'); // ✅ Fetch Swifin ID from localStorage
+    const swifinId = localStorage.getItem('swifinId');
+
+    if (!swifinId) {
+      alert('You must be logged in first!');
+      return;
+    }
+
+    // ✅ Validate fields
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.birthday ||
+      !formData.gender ||
+      !formData.mobilePhone ||
+      !formData.address ||
+      !formData.postalCode ||
+      !formData.city ||
+      !formData.country
+    ) {
+      alert('Please complete all fields before activating.');
+      return;
+    }
 
     try {
       const response = await fetch('/api/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, swifinId }), // ✅ Send swifinId together with form
+        body: JSON.stringify({ ...formData, swifinId }),
       });
 
       if (response.ok) {
@@ -65,6 +85,7 @@ export default function WalletActivatePage() {
       } else {
         const errorData = await response.json();
         alert('Activation Failed: ' + (errorData.message || 'Unknown Error'));
+        console.error('Backend error:', errorData);
       }
     } catch (err) {
       console.error('Activation error:', err);

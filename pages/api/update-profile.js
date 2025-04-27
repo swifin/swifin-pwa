@@ -3,8 +3,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
+  console.log('==== Incoming Data ====');
+  console.log(JSON.stringify(req.body, null, 2));
+
   const {
-    swifinId, // ✅ Must be passed in Activation Form
+    swifinId,
     name,
     email,
     birthday,
