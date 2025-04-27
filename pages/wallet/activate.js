@@ -32,11 +32,11 @@ export default function WalletActivatePage() {
         name: profile.name || '',
         email: profile.email || '',
         birthday: profile.birthday || '',
-        gender: profile.gender || '',
+        gender: '',
         mobilePhone: profile.mobilePhone || '',
-        address: profile.address || '',
-        postalCode: profile.postalCode || '',
-        city: profile.city || '',
+        address: '',
+        postalCode: '',
+        city: '',
         country: '',
       });
     }
@@ -45,6 +45,24 @@ export default function WalletActivatePage() {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const validateFormData = () => {
+    const { name, email, birthday, gender, mobilePhone, address, postalCode, city, country } = formData;
+    if (!name || !email || !birthday || !gender || !mobilePhone || !address || !postalCode || !city || !country) {
+      alert('Please complete all fields.');
+      return false;
+    }
+    const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!birthdayRegex.test(birthday)) {
+      alert('Birthday must be in format YYYY-MM-DD.');
+      return false;
+    }
+    if (gender !== '1' && gender !== '2') {
+      alert('Gender must be selected.');
+      return false;
+    }
+    return true;
   };
 
   const handleActivate = async (e) => {
@@ -56,21 +74,7 @@ export default function WalletActivatePage() {
       return;
     }
 
-    // ✅ Validate fields
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.birthday ||
-      !formData.gender ||
-      !formData.mobilePhone ||
-      !formData.address ||
-      !formData.postalCode ||
-      !formData.city ||
-      !formData.country
-    ) {
-      alert('Please complete all fields before activating.');
-      return;
-    }
+    if (!validateFormData()) return;
 
     try {
       const response = await fetch('/api/update-profile', {
@@ -138,7 +142,6 @@ export default function WalletActivatePage() {
             name="birthday"
             value={formData.birthday}
             onChange={handleChange}
-            placeholder="Birthday"
             className="w-full p-3 border border-gray-300 rounded-md"
             required
           />
