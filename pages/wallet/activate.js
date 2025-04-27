@@ -67,6 +67,8 @@ export default function WalletActivatePage() {
   };
 
   const handleActivate = async (e) => {
+   /* console.log('Submitting activation form:', formData); */
+
     e.preventDefault();
     const swifinId = localStorage.getItem('swifinId');
 
