@@ -3,7 +3,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  console.log('==== Incoming Data ====');
+  console.log('==== Activation API Incoming Body ====');
   console.log(JSON.stringify(req.body, null, 2));
 
   const {
@@ -81,6 +81,9 @@ export default async function handler(req, res) {
    </soapenv:Body>
 </soapenv:Envelope>`;
 
+  console.log('==== SOAP Request Being Sent ====');
+  console.log(soapBody);
+
   try {
     const soapResponse = await fetch('http://webservice.swifin.com/services/members', {
       method: 'POST',
@@ -93,7 +96,8 @@ export default async function handler(req, res) {
     });
 
     const text = await soapResponse.text();
-    console.log('FULL SOAP RESPONSE:', text);
+    console.log('==== FULL SOAP RESPONSE ====');
+    console.log(text);
 
     if (text.includes('<ns2:updateMemberResponse')) {
       return res.status(200).json({ message: 'Profile updated successfully' });
