@@ -1,4 +1,3 @@
-// pages/_app.js
 import '@rainbow-me/rainbowkit/styles.css';
 import '../styles/globals.css';
 
@@ -7,8 +6,8 @@ import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { WagmiProvider, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { polygonMumbai } from 'wagmi/chains';
+import { Toaster } from 'react-hot-toast'; // 👈 Add this import
 
-// Only initialize once at top level
 const config = getDefaultConfig({
   appName: 'Swifin Wallet',
   projectId: 'swifin-app',
@@ -33,7 +32,11 @@ function MyApp({ Component, pageProps }) {
             <meta property="og:image" content="/swifin-og-image.png" />
             <meta name="twitter:card" content="summary_large_image" />
           </Head>
+
           <Component {...pageProps} />
+
+          {/* 🎉 Toast Notifications */}
+          <Toaster position="top-center" reverseOrder={false} />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { toast } from 'react-hot-toast'; // 👈 Add toast import
 import { countries } from '../../utils/countries'; // adjust path if needed
 
 export default function WalletActivatePage() {
@@ -34,10 +35,10 @@ export default function WalletActivatePage() {
         birthday: profile.birthday || '',
         gender: '',
         mobilePhone: profile.mobilePhone || '',
-        address: '',
-        postalCode: '',
-        city: '',
-        country: '',
+        address: profile.address || '',
+        postalCode: profile.postalCode || '',
+        city: profile.city || '',
+        country: profile.country || '',
       });
     }
     setLoading(false);
@@ -50,16 +51,16 @@ export default function WalletActivatePage() {
   const validateFormData = () => {
     const { name, email, birthday, gender, mobilePhone, address, postalCode, city, country } = formData;
     if (!name || !email || !birthday || !gender || !mobilePhone || !address || !postalCode || !city || !country) {
-      alert('Please complete all fields.');
+      toast.error('Please complete all fields.');
       return false;
     }
     const birthdayRegex = /^\d{4}-\d{2}-\d{2}$/;
     if (!birthdayRegex.test(birthday)) {
-      alert('Birthday must be in format YYYY-MM-DD.');
+      toast.error('Birthday must be in format YYYY-MM-DD.');
       return false;
     }
     if (gender !== '1' && gender !== '2') {
-      alert('Gender must be selected.');
+      toast.error('Gender must be selected.');
       return false;
     }
     return true;
@@ -70,7 +71,7 @@ export default function WalletActivatePage() {
     const swifinId = localStorage.getItem('swifinId');
 
     if (!swifinId) {
-      alert('You must be logged in first!');
+      toast.error('You must be logged in first!');
       return;
     }
 
@@ -84,16 +85,16 @@ export default function WalletActivatePage() {
       });
 
       if (response.ok) {
-        alert('Wallet Activated Successfully!');
-        router.push('/dashboard');
+        toast.success('🎉 Wallet Activated Successfully!');
+        router.push('/wallet/success');
       } else {
         const errorData = await response.json();
-        alert('Activation Failed: ' + (errorData.message || 'Unknown Error'));
+        toast.error('Activation Failed: ' + (errorData.message || 'Unknown Error'));
         console.error('Backend error:', errorData);
       }
     } catch (err) {
       console.error('Activation error:', err);
-      alert('Unexpected error during activation.');
+      toast.error('Unexpected error during activation.');
     }
   };
 
