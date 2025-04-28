@@ -1,12 +1,15 @@
 // pages/dashboard.js
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Dashboard() {
   const router = useRouter();
   const [balances, setBalances] = useState({ SFNL: 0, SFNC: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userName, setUserName] = useState('');
 
   const fetchBalances = async () => {
     try {
@@ -26,48 +29,81 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    const swifinId = localStorage.getItem('swifinId');
-    if (!swifinId) {
-      router.push('/auth/login');
-      return;
-    }
     fetchBalances();
+    const profileStr = localStorage.getItem('profile');
+    if (profileStr) {
+      const profile = JSON.parse(profileStr);
+      setUserName(profile.name || '');
+    }
   }, []);
 
-  const refreshBalances = () => {
-    setLoading(true);
-    fetchBalances();
+  const handleGoMarket = () => {
+    toast.success('Opening Market...');
+    setTimeout(() => {
+      router.push('/market'); // Replace with your actual Market URL
+    }, 1000);
+  };
+
+  const handleTopUp = () => {
+    toast.success('Opening Top Up...');
+    setTimeout(() => {
+      router.push('/wallet/topup'); // Replace with your actual Top Up page
+    }, 1000);
+  };
+
+  const handleSendMoney = () => {
+    toast.success('Opening Send Money...');
+    setTimeout(() => {
+      router.push('/wallet/send'); // Replace with your actual Send Money page
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-start bg-gray-100 p-8">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-3xl">
-        <h1 className="text-3xl font-bold mb-8 text-center text-blue-700">Swifin Wallet Dashboard</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <ToastContainer />
+      <div className="max-w-5xl mx-auto space-y-8">
+        <div className="bg-blue-600 text-white p-6 rounded-2xl shadow-md text-center">
+          <h1 className="text-3xl font-bold">🎉 Welcome {userName || 'Swifin User'}!</h1>
+          <p className="text-lg mt-2">Your Wallet is Active. Let's grow prosperity together 🌍✨</p>
+        </div>
 
         {loading ? (
-          <div className="text-lg text-gray-500 text-center">Loading balances...</div>
+          <div className="text-center text-blue-700 font-semibold">Loading balances...</div>
         ) : error ? (
-          <div className="text-red-500 text-center">{error}</div>
+          <div className="text-center text-red-500">{error}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-green-100 p-6 rounded-md shadow text-center">
-              <h2 className="text-xl font-semibold text-green-700 mb-2">SFNL Balance</h2>
-              <p className="text-2xl font-bold">{balances.SFNL ?? 0} SFNL</p>
+            <div className="bg-white p-6 rounded-2xl shadow text-center">
+              <h2 className="text-xl font-semibold mb-2">SFNL Balance</h2>
+              <p className="text-3xl">{balances.SFNL} SFNL</p>
             </div>
-
-            <div className="bg-indigo-100 p-6 rounded-md shadow text-center">
-              <h2 className="text-xl font-semibold text-indigo-700 mb-2">SFNC Balance</h2>
-              <p className="text-2xl font-bold">{balances.SFNC ?? 0} SFNC</p>
+            <div className="bg-white p-6 rounded-2xl shadow text-center">
+              <h2 className="text-xl font-semibold mb-2">SFNC Balance</h2>
+              <p className="text-3xl">{balances.SFNC} SFNC</p>
             </div>
           </div>
         )}
 
-        <button
-          onClick={refreshBalances}
-          className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-md transition"
-        >
-          🔄 Refresh Balances
-        </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+          <button
+            onClick={handleGoMarket}
+            className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition"
+          >
+            🛍️ Explore Market
+          </button>
+          <button
+            onClick={handleTopUp}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-4 rounded-xl transition"
+          >
+            💳 Top Up Wallet
+          </button>
+          <button
+            onClick={handleSendMoney}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 rounded-xl transition"
+          >
+            💸 Send Money
+          </button>
+        </div>
       </div>
     </div>
   );
