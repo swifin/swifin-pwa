@@ -1,14 +1,9 @@
-/*
-export default async function handler(req, res) {
-  console.log('✅ API /api/update-profile HIT'); // 👈 Add this at top
-*/
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  console.log('==== Activation API Incoming Body ====');
+  console.log('==== Incoming Activation Data ====');
   console.log(JSON.stringify(req.body, null, 2));
 
   const {
@@ -31,59 +26,59 @@ export default async function handler(req, res) {
 
   const soapBody = `
 <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mem="http://members.webservices.cyclos.strohalm.nl/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <mem:updateMember>
-         <params>
-            <principalType>username</principalType>
-            <principal>${swifinId}</principal>
-            <name>${name}</name>
-            <email>${email}</email>
-            <fields>
-               <internalName>birthday</internalName>
-               <fieldId>1</fieldId>
-               <displayName>Birthday</displayName>
-               <value>${birthday}</value>
-            </fields>
-            <fields>
-               <internalName>gender</internalName>
-               <fieldId>2</fieldId>
-               <displayName>Gender</displayName>
-               <value>${gender}</value>
-            </fields>
-            <fields>
-               <internalName>mobilePhone</internalName>
-               <fieldId>8</fieldId>
-               <displayName>Mobile Phone</displayName>
-               <value>${mobilePhone}</value>
-            </fields>
-            <fields>
-               <internalName>address</internalName>
-               <fieldId>3</fieldId>
-               <displayName>Address</displayName>
-               <value>${address}</value>
-            </fields>
-            <fields>
-               <internalName>postalCode</internalName>
-               <fieldId>4</fieldId>
-               <displayName>Postal Code</displayName>
-               <value>${postalCode}</value>
-            </fields>
-            <fields>
-               <internalName>city</internalName>
-               <fieldId>5</fieldId>
-               <displayName>City</displayName>
-               <value>${city}</value>
-            </fields>
-            <fields>
-               <internalName>country</internalName>
-               <fieldId>13</fieldId>
-               <displayName>Country</displayName>
-               <value>${country}</value>
-            </fields>
-         </params>
-      </mem:updateMember>
-   </soapenv:Body>
+  <soapenv:Header/>
+  <soapenv:Body>
+    <mem:updateMember>
+      <params>
+        <principalType>username</principalType>
+        <principal>${swifinId}</principal>
+        <name>${escapeXml(name)}</name>
+        <email>${escapeXml(email)}</email>
+        <fields>
+          <internalName>birthday</internalName>
+          <fieldId>1</fieldId>
+          <displayName>Birthday</displayName>
+          <value>${birthday}</value>
+        </fields>
+        <fields>
+          <internalName>gender</internalName>
+          <fieldId>2</fieldId>
+          <displayName>Gender</displayName>
+          <value>${gender}</value>
+        </fields>
+        <fields>
+          <internalName>mobilePhone</internalName>
+          <fieldId>8</fieldId>
+          <displayName>Mobile Phone</displayName>
+          <value>${escapeXml(mobilePhone)}</value>
+        </fields>
+        <fields>
+          <internalName>address</internalName>
+          <fieldId>3</fieldId>
+          <displayName>Address</displayName>
+          <value>${escapeXml(address)}</value>
+        </fields>
+        <fields>
+          <internalName>postalCode</internalName>
+          <fieldId>4</fieldId>
+          <displayName>Postal Code</displayName>
+          <value>${escapeXml(postalCode)}</value>
+        </fields>
+        <fields>
+          <internalName>city</internalName>
+          <fieldId>5</fieldId>
+          <displayName>City</displayName>
+          <value>${escapeXml(city)}</value>
+        </fields>
+        <fields>
+          <internalName>country</internalName>
+          <fieldId>13</fieldId>
+          <displayName>Country</displayName>
+          <value>${country}</value>
+        </fields>
+      </params>
+    </mem:updateMember>
+  </soapenv:Body>
 </soapenv:Envelope>`;
 
   console.log('==== SOAP Request Being Sent ====');
@@ -101,7 +96,7 @@ export default async function handler(req, res) {
     });
 
     const text = await soapResponse.text();
-    console.log('==== FULL SOAP RESPONSE ====');
+    console.log('==== SOAP Response Received ====');
     console.log(text);
 
     if (text.includes('<ns2:updateMemberResponse')) {
@@ -114,5 +109,20 @@ export default async function handler(req, res) {
     console.error('SOAP Error:', error);
     return res.status(500).json({ message: 'Internal Server Error' });
   }
+}
+
+// Helper to escape XML special characters
+function escapeXml(unsafe) {
+  if (!unsafe) return '';
+  return unsafe.replace(/[<>&'"]/g, (c) => {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+      default: return c;
+    }
+  });
 }
 
