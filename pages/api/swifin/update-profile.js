@@ -1,115 +1,59 @@
-// ~/swifin-pwa/pages/api/swifin/update-profile.js
-
-import { decrypt } from '@/lib/crypto';
-import { getCookies } from 'cookies-next';
-import countries from '@/lib/countries';
+// /pages/api/swifin/update-profile.js
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
-
-  const cookies = getCookies({ req, res });
-  const swifinId = decrypt(cookies.swifinId);
-  const swifinPassword = decrypt(cookies.swifinPassword);
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
 
   const {
-    id,
-    principal,
-    name,
-    email,
+    swifinId,
+    password,
     birthday,
     gender,
-    mobilePhone,
     address,
     postalCode,
     city,
-    country
+    country,
+    mobilePhone
   } = req.body;
 
-  const adminAuth = Buffer.from(`${process.env.ADMIN_SWIFIN_ID}:${process.env.ADMIN_SWIFIN_PASSWORD}`).toString('base64');
-
-  const selectedCountry = countries.find(c => c.name === country);
-  const countryId = selectedCountry ? selectedCountry.id : 190; // default to UK
-
-  const xml = `
-<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mem="http://members.webservices.cyclos.strohalm.nl/">
-   <soapenv:Header/>
-   <soapenv:Body>
-      <mem:updateMember>
-         <params>
-            <id>${id}</id>
-            <principalType>username</principalType>
-            <principal>${principal}</principal>
-            <name>${name}</name>
-            <email>${email}</email>
-            <fields>
-              <internalName>birthday</internalName>
-              <fieldId>1</fieldId>
-              <displayName>Birthday</displayName>
-              <value>${birthday}</value>
-            </fields>
-            <fields>
-              <internalName>gender</internalName>
-              <fieldId>2</fieldId>
-              <displayName>Gender</displayName>
-              <value>${gender}</value>
-            </fields>
-            <fields>
-              <internalName>mobilePhone</internalName>
-              <fieldId>8</fieldId>
-              <displayName>Mobile Phone</displayName>
-              <value>${mobilePhone}</value>
-            </fields>
-            <fields>
-              <internalName>address</internalName>
-              <fieldId>3</fieldId>
-              <displayName>Address</displayName>
-              <value>${address}</value>
-            </fields>
-            <fields>
-              <internalName>postalCode</internalName>
-              <fieldId>4</fieldId>
-              <displayName>Postal Code</displayName>
-              <value>${postalCode}</value>
-            </fields>
-            <fields>
-              <internalName>city</internalName>
-              <fieldId>5</fieldId>
-              <displayName>City</displayName>
-              <value>${city}</value>
-            </fields>
-            <fields>
-              <internalName>country</internalName>
-              <fieldId>13</fieldId>
-              <displayName>Country</displayName>
-              <value>${countryId}</value>
-            </fields>
-         </params>
-      </mem:updateMember>
-   </soapenv:Body>
-</soapenv:Envelope>`;
+  if (!swifinId || !password) {
+    return res.status(400).json({ message: 'Swifin ID and password are required' });
+  }
 
   try {
-    const soapRes = await fetch('http://webservice.swifin.com/services/members', {
-      method: 'POST',
+    const apiUrl = `${process.env.NEXT_PUBLIC_SWIFIN_API_URL}/profile/custom-values`;
+
+    const fields = [];
+
+    if (birthday) fields.push({ internalName: 'birthday', value: birthday });
+    if (gender) fields.push({ internalName: 'gender', value: gender });
+    if (address) fields.push({ internalName: 'address', value: address });
+    if (postalCode) fields.push({ internalName: 'postalCode', value: postalCode });
+    if (city) fields.push({ internalName: 'city', value: city });
+    if (country) fields.push({ internalName: 'country', value: country });
+    if (mobilePhone) fields.push({ internalName: 'mobilePhone', value: mobilePhone });
+
+    const response = await fetch(apiUrl, {
+      method: 'PUT',
       headers: {
-        'Authorization': `Basic ${adminAuth}`,
-        'Content-Type': 'text/xml;charset=UTF-8',
-        'SOAPAction': ''
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + Buffer.from(`${swifinId}:${password}`).toString('base64'),
       },
-      body: xml
+      body: JSON.stringify(fields),
     });
 
-    const text = await soapRes.text();
-
-    if (text.includes('<ns2:updateMemberResponse')) {
-      return res.status(200).json({ success: true });
-    } else {
-      return res.status(500).json({ error: 'Failed to update member profile', raw: text });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return res.status(response.status).json({ message: errorData.message || 'Failed to update profile' });
     }
 
-  } catch (err) {
-    console.error('[update-profile] Error:', err);
-    return res.status(500).json({ error: 'Server Error', details: err.message });
+    const data = await response.json();
+
+    return res.status(200).json({ message: 'Profile updated successfully', data });
+  } catch (error) {
+    console.error('Update Profile API error:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
 

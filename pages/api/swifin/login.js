@@ -1,30 +1,38 @@
-// pages/api/swifin/login.js
+// /pages/api/swifin/login.js
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const { swifinID, password } = req.body;
+  const { swifinId, password } = req.body;
+
+  if (!swifinId || !password) {
+    return res.status(400).json({ message: 'Swifin ID and password are required' });
+  }
 
   try {
-    const authHeader = Buffer.from(`${swifinID}:${password}`).toString('base64');
+    const apiUrl = `${process.env.NEXT_PUBLIC_SWIFIN_API_URL}/members/current`;
 
-    const response = await fetch(process.env.SWIFIN_REST_API, {
+    const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
-        Authorization: `Basic ${authHeader}`,
-        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic ' + Buffer.from(`${swifinId}:${password}`).toString('base64'),
       },
     });
 
     if (!response.ok) {
-      return res.status(401).json({ message: 'Invalid Swifin ID or Password' });
+      const errorData = await response.json();
+      return res.status(response.status).json({ message: errorData.message || 'Invalid Swifin ID or Password' });
     }
 
-    const user = await response.json();
-    res.status(200).json(user);
+    const profile = await response.json();
+
+    return res.status(200).json({ profile });
   } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Login failed' });
+    console.error('Login API error:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
 }
+
