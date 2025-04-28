@@ -29,16 +29,22 @@ export default function WalletActivatePage() {
     const profileStr = localStorage.getItem('profile');
     if (profileStr) {
       const profile = JSON.parse(profileStr);
+
+      const customValues = {};
+      profile.customValues?.forEach((item) => {
+        customValues[item.internalName] = item;
+      });
+
       setFormData({
         name: profile.name || '',
         email: profile.email || '',
-        birthday: profile.birthday || '',
-        gender: '',
-        mobilePhone: profile.mobilePhone || '',
-        address: profile.address || '',
-        postalCode: profile.postalCode || '',
-        city: profile.city || '',
-        country: profile.country || '',
+        birthday: customValues['birthday']?.value || '',
+        gender: '', // Gender missing in login payload — user will select manually
+        mobilePhone: customValues['mobilePhone']?.value || '',
+        address: customValues['address']?.value || '',
+        postalCode: customValues['postalCode']?.value || '',
+        city: customValues['city']?.value || '',
+        country: customValues['country']?.possibleValueId?.toString() || '',
       });
     }
     setLoading(false);
