@@ -1,3 +1,7 @@
+/* This is the login page
+swifin-pwa/pages/auth/login.js
+*/
+
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
