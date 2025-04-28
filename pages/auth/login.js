@@ -1,7 +1,3 @@
-/* This is the login page
-swifin-pwa/pages/auth/login.js
-*/
-
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 
@@ -27,12 +23,24 @@ export default function LoginPage() {
         const data = await response.json();
         console.log('Login successful:', data);
 
-        // ✅ Save to localStorage
-        localStorage.setItem('swifinId', swifinId);
-        localStorage.setItem('profile', JSON.stringify(data.profile));
+        // Extract gender if available
+        const gender = data.profile.customValues?.find(v => v.internalName === 'gender')?.value || '';
 
-        // ✅ Redirect
-        router.push('/wallet/activate');
+        // Save everything to localStorage
+        localStorage.setItem('swifinId', swifinId);
+        localStorage.setItem('profile', JSON.stringify({
+          ...data.profile,
+          gender: gender,
+          activated: data.profile.activated || false,
+        }));
+        localStorage.setItem('activated', data.profile.activated ? 'true' : 'false');
+
+        // Redirect based on activation status
+        if (data.profile.activated) {
+          router.push('/wallet/dashboard');
+        } else {
+          router.push('/wallet/activate');
+        }
       } else {
         const errorData = await response.json();
         setError(errorData.message || 'Login failed');
@@ -56,7 +64,7 @@ export default function LoginPage() {
               placeholder="Swifin ID"
               value={swifinId}
               onChange={(e) => setSwifinId(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -67,7 +75,7 @@ export default function LoginPage() {
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -79,7 +87,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-md transition disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-md transition"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

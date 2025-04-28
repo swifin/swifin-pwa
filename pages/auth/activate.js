@@ -1,6 +1,38 @@
 // FILE: /pages/auth/activate.js
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-import { useState } from 'react';
+function normalizeProfileFields(customValues = []) {
+  const requiredFields = [
+    { internalName: 'birthday', displayName: 'Birthday' },
+    { internalName: 'mobilePhone', displayName: 'Mobile phone' },
+    { internalName: 'gender', displayName: 'Gender' },
+    { internalName: 'address', displayName: 'Address' },
+    { internalName: 'postalCode', displayName: 'Postal code' },
+    { internalName: 'city', displayName: 'City' },
+    { internalName: 'country', displayName: 'Country' },
+    { internalName: 'memberType', displayName: 'Member Type' },
+  ];
+
+  const existingFields = {};
+  customValues.forEach((field) => {
+    existingFields[field.internalName] = field;
+  });
+
+  const normalizedFields = requiredFields.map((requiredField) => {
+    if (existingFields[requiredField.internalName]) {
+      return existingFields[requiredField.internalName];
+    } else {
+      return {
+        internalName: requiredField.internalName,
+        displayName: requiredField.displayName,
+        value: '', // blank for user to complete
+      };
+    }
+  });
+
+  return normalizedFields;
+}
 
 export default function ActivateWallet() {
   const [swifinId, setSwifinId] = useState('');
@@ -8,27 +40,65 @@ export default function ActivateWallet() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user already activated
+    const storedProfile = localStorage.getItem('profile');
+    const activated = localStorage.getItem('activated');
+
+    if (storedProfile && activated === 'true') {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
-    const res = await fetch('/api/swifin/activate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ swifinId, password })
-    });
+    try {
+      const res = await fetch('/api/swifin/activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ swifinId, password })
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-    if (!res.ok) {
-      setError(data.message || 'Something went wrong');
-      return;
+      if (!res.ok) {
+        setError(data.message || 'Something went wrong');
+        return;
+      }
+
+      // Normalize missing fields
+      const normalizedCustomValues = normalizeProfileFields(data.customValues || []);
+
+      const normalizedProfile = {
+        ...data,
+        customValues: normalizedCustomValues,
+      };
+
+      // Save to localStorage
+      localStorage.setItem('profile', JSON.stringify({ 
+        ...normalizedProfile, 
+        activated: true 
+      }));
+      localStorage.setItem('activated', 'true');
+      localStorage.setItem('swifinId', data.username);
+
+      // Set profile in state
+      setProfile(normalizedProfile);
+
+      // Redirect after successful activation
+      router.push('/dashboard');
+
+    } catch (err) {
+      console.error('Activation error:', err);
+      setError('Unexpected error. Please try again.');
+      setLoading(false);
     }
-
-    setProfile(data);
   };
 
   if (profile) {
@@ -43,7 +113,13 @@ export default function ActivateWallet() {
         <p className="mb-2">Mobile Phone: {mobile}</p>
         <p className="mb-4">Member Type: {memberType}</p>
         <button
-          onClick={() => setProfile(null)}
+          onClick={() => {
+            localStorage.removeItem('profile');
+            localStorage.removeItem('activated');
+            localStorage.removeItem('swifinId');
+            setProfile(null);
+            router.push('/auth/login');
+          }}
           className="px-4 py-2 bg-blue-600 text-white rounded"
         >
           Log out
@@ -62,7 +138,7 @@ export default function ActivateWallet() {
           type="text"
           className="w-full border px-3 py-2 rounded mb-4"
           value={swifinId}
-          onChange={e => setSwifinId(e.target.value)}
+          onChange={(e) => setSwifinId(e.target.value)}
           required
         />
 
@@ -71,7 +147,7 @@ export default function ActivateWallet() {
           type="password"
           className="w-full border px-3 py-2 rounded mb-4"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={(e) => setPassword(e.target.value)}
           required
         />
 
@@ -88,3 +164,4 @@ export default function ActivateWallet() {
     </div>
   );
 }
+
