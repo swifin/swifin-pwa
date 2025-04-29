@@ -1,4 +1,6 @@
-// /pages/api/swifin/login.js
+/* ~/swifin-pwa/pages/api/swifin/login.js */
+
+const { SWIFIN_REST_API } = process.env;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const apiUrl = `${process.env.NEXT_PUBLIC_SWIFIN_API_URL}/members/current`;
+    const apiUrl = SWIFIN_REST_API;
 
     const response = await fetch(apiUrl, {
       method: 'GET',

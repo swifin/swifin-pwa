@@ -1,59 +1,119 @@
-// /pages/api/swifin/update-profile.js
+/* ~/swifin-pwa/pages/api/swifin/update-profile.js */
+
+import { decrypt } from '@/lib/crypto';
+import { SOAPRequest } from '@/lib/soapClient';
+import countries from '@/utils/countries';
+
+const { SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD } = process.env;
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const {
-    swifinId,
-    password,
-    birthday,
-    gender,
-    address,
-    postalCode,
-    city,
-    country,
-    mobilePhone
-  } = req.body;
-
-  if (!swifinId || !password) {
-    return res.status(400).json({ message: 'Swifin ID and password are required' });
-  }
-
   try {
-    const apiUrl = `${process.env.NEXT_PUBLIC_SWIFIN_API_URL}/profile/custom-values`;
+    const {
+      birthday,
+      mobilePhone,
+      gender,
+      address,
+      postalCode,
+      city,
+      country
+    } = req.body;
 
-    const fields = [];
+    const encryptedSwifinId = req.cookies?.swifinId;
+    const encryptedPassword = req.cookies?.password;
 
-    if (birthday) fields.push({ internalName: 'birthday', value: birthday });
-    if (gender) fields.push({ internalName: 'gender', value: gender });
-    if (address) fields.push({ internalName: 'address', value: address });
-    if (postalCode) fields.push({ internalName: 'postalCode', value: postalCode });
-    if (city) fields.push({ internalName: 'city', value: city });
-    if (country) fields.push({ internalName: 'country', value: country });
-    if (mobilePhone) fields.push({ internalName: 'mobilePhone', value: mobilePhone });
+    if (!encryptedSwifinId || !encryptedPassword) {
+      return res.status(401).json({ message: 'Unauthorized: Missing credentials.' });
+    }
 
-    const response = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic ' + Buffer.from(`${swifinId}:${password}`).toString('base64'),
-      },
-      body: JSON.stringify(fields),
+    const swifinId = decrypt(encryptedSwifinId);
+    const password = decrypt(encryptedPassword);
+
+    const genderCode = gender === 'Male' ? '2' : gender === 'Female' ? '1' : '214';
+    const countryId = country; // Already selected as ID
+
+    const soapBody = `
+      <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mem="http://members.webservices.cyclos.strohalm.nl/">
+        <soapenv:Header/>
+        <soapenv:Body>
+          <mem:updateMember>
+            <params>
+              <principalType>username</principalType>
+              <principal>${swifinId}</principal>
+
+              <fields>
+                <internalName>birthday</internalName>
+                <fieldId>1</fieldId>
+                <displayName>Birthday</displayName>
+                <value>${birthday}</value>
+              </fields>
+
+              <fields>
+                <internalName>gender</internalName>
+                <fieldId>2</fieldId>
+                <displayName>Gender</displayName>
+                <value>${genderCode}</value>
+              </fields>
+
+              <fields>
+                <internalName>mobilePhone</internalName>
+                <fieldId>8</fieldId>
+                <displayName>Mobile Phone</displayName>
+                <value>${mobilePhone}</value>
+              </fields>
+
+              <fields>
+                <internalName>address</internalName>
+                <fieldId>3</fieldId>
+                <displayName>Address</displayName>
+                <value>${address}</value>
+              </fields>
+
+              <fields>
+                <internalName>postalCode</internalName>
+                <fieldId>4</fieldId>
+                <displayName>Postal Code</displayName>
+                <value>${postalCode}</value>
+              </fields>
+
+              <fields>
+                <internalName>city</internalName>
+                <fieldId>5</fieldId>
+                <displayName>City</displayName>
+                <value>${city}</value>
+              </fields>
+
+              <fields>
+                <internalName>country</internalName>
+                <fieldId>13</fieldId>
+                <displayName>Country</displayName>
+                <value>${countryId}</value>
+              </fields>
+            </params>
+          </mem:updateMember>
+        </soapenv:Body>
+      </soapenv:Envelope>
+    `;
+
+    const { response } = await soapRequest({
+      url: SWIFIN_SOAP_ENDPOINT,
+      action: 'updateMember',
+      body: soapBody,
+      username: ADMIN_SWIFIN_ID,
+      password: ADMIN_SWIFIN_PASSWORD,
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      return res.status(response.status).json({ message: errorData.message || 'Failed to update profile' });
+      return res.status(500).json({ message: 'Failed to update profile via SOAP.' });
     }
 
-    const data = await response.json();
-
-    return res.status(200).json({ message: 'Profile updated successfully', data });
-  } catch (error) {
-    console.error('Update Profile API error:', error);
-    return res.status(500).json({ message: 'Internal Server Error' });
+    return res.status(200).json({ message: 'Profile updated successfully.' });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 }
 

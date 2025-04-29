@@ -1,6 +1,4 @@
-/* Updated: /pages/auth/login.js */
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 export default function LoginPage() {
@@ -9,18 +7,6 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    const profile = localStorage.getItem('profile');
-    if (profile) {
-      const parsed = JSON.parse(profile);
-      if (parsed.activated) {
-        router.push('/dashboard');
-      } else {
-        router.push('/auth/activate');
-      }
-    }
-  }, []);
 
   const login = async (e) => {
     e.preventDefault();
@@ -35,13 +21,25 @@ export default function LoginPage() {
 
       if (response.ok) {
         const data = await response.json();
-        localStorage.setItem('swifinId', swifinId);
-        localStorage.setItem('profile', JSON.stringify(data.profile));
+        console.log('Login successful:', data);
 
+        // Extract gender if available
+        const gender = data.profile.customValues?.find(v => v.internalName === 'gender')?.value || '';
+
+        // Save everything to localStorage
+        localStorage.setItem('swifinId', swifinId);
+        localStorage.setItem('profile', JSON.stringify({
+          ...data.profile,
+          gender: gender,
+          activated: data.profile.activated || false,
+        }));
+        localStorage.setItem('activated', data.profile.activated ? 'true' : 'false');
+
+        // Redirect based on activation status
         if (data.profile.activated) {
-          router.push('/dashboard');
+          router.push('/wallet/dashboard');
         } else {
-          router.push('/auth/activate');
+          router.push('/wallet/activate');
         }
       } else {
         const errorData = await response.json();
@@ -60,23 +58,27 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">Login to Swifin</h1>
 
         <form onSubmit={login} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Swifin ID"
-            value={swifinId}
-            onChange={(e) => setSwifinId(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
-            required
-          />
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Swifin ID"
+              value={swifinId}
+              onChange={(e) => setSwifinId(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none"
-            required
-          />
+          <div className="mb-6">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              required
+            />
+          </div>
 
           {error && (
             <div className="text-red-500 mb-4 text-center">{error}</div>
@@ -85,7 +87,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-md"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold p-3 rounded-md transition"
           >
             {loading ? 'Logging in...' : 'Login'}
           </button>

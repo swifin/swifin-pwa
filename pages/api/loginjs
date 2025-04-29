@@ -1,0 +1,71 @@
+// pages/api/login.js
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const { swifinId, password } = req.body;
+
+  try {
+    // STEP 1: Authenticate the user (You should replace this with real login logic)
+    const sessionToken = await authenticateUser(swifinId, password);
+    if (!sessionToken) {
+      return res.status(401).json({ message: 'Invalid Swifin ID or Password' });
+    }
+
+    // STEP 2: Fetch the profile data including custom fields
+    const profile = await fetchProfile(sessionToken, swifinId);
+
+    // STEP 3: Extract Gender field (field_id = 2)
+    let gender = 'NA'; // Default
+    if (profile?.customFields && Array.isArray(profile.customFields)) {
+      const genderField = profile.customFields.find(field => field.fieldId === 2);
+      if (genderField) {
+        if (genderField.id === 1) gender = 'Male';
+        else if (genderField.id === 2) gender = 'Female';
+        else if (genderField.id === 214) gender = 'NA';
+      }
+    }
+
+    // STEP 4: Build the final profile object
+    const finalProfile = {
+      ...profile,
+      gender, // Add mapped gender
+    };
+
+    // STEP 5: Send success response
+    return res.status(200).json({ profile: finalProfile });
+
+  } catch (error) {
+    console.error('Login API error:', error);
+    return res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
+
+// Dummy function to simulate user authentication
+async function authenticateUser(swifinId, password) {
+  // Replace this with your real authentication against Swifin Core
+  // Example: return a session token if successful
+  if (swifinId && password) {
+    return 'dummy-session-token'; // Replace with real token
+  }
+  return null;
+}
+
+// Dummy function to simulate fetching the user's profile
+async function fetchProfile(sessionToken, swifinId) {
+  // Replace this with real API call to Swifin Core
+  // Example: Fetch user profile including custom fields
+
+  // Simulated profile response
+  return {
+    name: 'John Doe',
+    email: 'john@example.com',
+    swifinId: swifinId,
+    customFields: [
+      { id: 1, fieldId: 2, value: 'Male' }, // Gender Male (id 1)
+      // Add more fields as necessary
+    ],
+  };
+}

@@ -1,38 +1,32 @@
-/* Updated: /pages/auth/activate.js */
-
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { useProfile } from '@/context/ProfileContext';
 
-const GENDER_OPTIONS = [
-  { id: 1, label: 'Male' },
-  { id: 2, label: 'Female' },
-  { id: 214, label: 'NA' },
-];
+// 🛠 FIX import countries properly
+import { countries } from '@/utils/countries'; // <- If countries.js exports { countries }
+
+// If countries.js exports DEFAULT, then use:
+// import countries from '@/utils/countries';
 
 export default function ActivateWallet() {
-  const [profile, setProfile] = useState(null);
+  const profileContext = useProfile() || {}; // 🛠 FIX: Safe fallback
+  const { profile } = profileContext;
+  const router = useRouter();
   const [form, setForm] = useState({});
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
-    const stored = localStorage.getItem('profile');
-    if (stored) {
-      const p = JSON.parse(stored);
-      if (p.activated) {
-        router.push('/dashboard');
-      } else {
-        setProfile(p);
-        const initialForm = {};
-        ['birthday', 'mobilePhone', 'gender', 'address', 'postalCode', 'city', 'country'].forEach(field => {
-          const valueObj = p.customValues?.find(v => v.internalName === field);
-          initialForm[field] = valueObj?.value || '';
-        });
-        setForm(initialForm);
-      }
+    if (profile) {
+      const initialForm = {};
+      ['birthday', 'mobilePhone', 'gender', 'address', 'postalCode', 'city', 'country'].forEach(field => {
+        const valueObj = profile.customValues?.find(v => v.internalName === field);
+        initialForm[field] = valueObj?.value || '';
+      });
+      setForm(initialForm);
     }
-  }, []);
+  }, [profile]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -42,19 +36,21 @@ export default function ActivateWallet() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
       const res = await fetch('/api/swifin/update-profile', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ form }),
+        body: JSON.stringify(form)
       });
+
       const data = await res.json();
 
       if (res.ok) {
-        localStorage.setItem('profile', JSON.stringify({ ...profile, activated: true }));
-        router.push('/dashboard');
+        setSuccess('✅ Wallet activated successfully!');
+        setTimeout(() => router.push('/dashboard'), 1500);
       } else {
         setError(data.message || 'Activation failed');
       }
@@ -99,9 +95,9 @@ export default function ActivateWallet() {
           required
         >
           <option value="">Select Gender</option>
-          {GENDER_OPTIONS.map(opt => (
-            <option key={opt.id} value={opt.label}>{opt.label}</option>
-          ))}
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="NA">Prefer not to say</option>
         </select>
 
         <input
@@ -134,17 +130,21 @@ export default function ActivateWallet() {
           required
         />
 
-        <input
-          type="text"
+        <select
           name="country"
           value={form.country}
           onChange={handleChange}
-          placeholder="Country"
           className="w-full border px-3 py-2 rounded mb-4"
           required
-        />
+        >
+          <option value="">Select Country</option>
+          {countries.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
 
         {error && <p className="text-red-600 mb-4">{error}</p>}
+        {success && <p className="text-green-600 mb-4">{success}</p>}
 
         <button
           type="submit"
@@ -157,3 +157,4 @@ export default function ActivateWallet() {
     </div>
   );
 }
+
