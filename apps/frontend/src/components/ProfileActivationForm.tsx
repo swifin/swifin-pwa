@@ -1,0 +1,1 @@
+// ProfileActivationForm.tsx content placeholder

@@ -1,42 +1,17 @@
 {
-  "name": "swifin-dashboard",
-  "version": "1.0.0",
-  "description": "Swifin PWA Dashboard Starter",
-  "main": "index.js",
+  "name": "swifin-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
-  },
-  "author": "Swifin",
-  "license": "MIT",
-  "dependencies": {
-    "@rainbow-me/rainbowkit": "latest",
-    "@tanstack/react-query": "latest",
-    "axios": "^1.9.0",
-    "cookie": "^1.0.2",
-    "cookies-next": "^5.1.0",
-    "crypto-js": "^4.2.0",
-    "ethers": "^6.13.5",
-    "js-cookie": "^3.0.5",
-    "jsonwebtoken": "^9.0.2",
-    "lottie-react": "^2.4.1",
-    "lowdb": "^7.0.1",
-    "multer": "^1.4.5-lts.2",
-    "next": "15.3.1",
-    "next-auth": "^4.24.11",
-    "next-connect": "^1.0.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "react-hot-toast": "^2.5.2",
-    "react-toastify": "^11.0.5",
-    "stripe": "^18.0.0",
-    "wagmi": "latest",
-    "xml2js": "^0.6.2"
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.21",
-    "postcss": "^8.4.30",
-    "tailwindcss": "^3.4.3"
+    "turbo": "^1.10.0"
   }
 }

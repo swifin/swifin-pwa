@@ -1,0 +1,1 @@
+// registerController.ts content placeholder

@@ -1,0 +1,1 @@
+// registerService.ts content placeholder
