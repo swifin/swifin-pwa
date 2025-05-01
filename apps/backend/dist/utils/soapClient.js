@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createSoapEnvelope = exports.sendSoapRequest = void 0;
+exports.sendSoapUpdateRequest = exports.createSoapEnvelope = exports.sendSoapRequest = void 0;
 const axios_1 = __importDefault(require("axios"));
 const sendSoapRequest = async (url, xmlBody) => {
     const response = await axios_1.default.post(url, xmlBody, {
@@ -29,3 +29,16 @@ const createSoapEnvelope = (method, params) => {
     </soapenv:Envelope>`;
 };
 exports.createSoapEnvelope = createSoapEnvelope;
+const sendSoapUpdateRequest = async (url, xmlBody) => {
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/xml;charset=UTF-8',
+            SOAPAction: '',
+        },
+        body: xmlBody,
+    });
+    const text = await response.text();
+    return { data: text }; // You may want to parse this later
+};
+exports.sendSoapUpdateRequest = sendSoapUpdateRequest;

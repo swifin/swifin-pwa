@@ -26,3 +26,15 @@ export const createSoapEnvelope = (method: string, params: Record<string, string
     </soapenv:Envelope>`;
 };
 
+export const sendSoapUpdateRequest = async (url: string, xmlBody: string) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/xml;charset=UTF-8',
+      SOAPAction: '',
+    },
+    body: xmlBody,
+  });
+  const text = await response.text();
+  return { data: text }; // You may want to parse this later
+};

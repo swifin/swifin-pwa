@@ -13,26 +13,25 @@ const authenticateSwifinUser = async (swifinId, password) => {
         const response = await axios_1.default.get(`${baseUrl}/members/me`, {
             headers: {
                 Authorization: `Basic ${credentials}`,
+                Accept: 'application/json',
             },
-            validateStatus: (status) => status >= 200 && status < 500,
+            validateStatus: () => true // allow all statuses
         });
-        console.log('Swifin API response:', response.status, response.data); // for debugging
-        if (response.status === 401 || !response.data || response.data.error) {
-            console.warn(`Authentication failed for ${swifinId}:`, response.data?.error || 'Unauthorized');
+        // Reject unauthorized or missing profile data
+        if (response.status === 401 || !response.data || typeof response.data !== 'object') {
+            console.warn(`Authentication failed for ${swifinId}: Unauthorized or invalid response`);
             return null;
         }
-        const { name, email, country, gender, memberType } = response.data;
-        return {
-            swifinId,
-            name,
-            email,
-            country,
-            gender,
-            memberType,
-        };
+        // Optional: Validate key fields exist
+        const { swifinId: id, name } = response.data;
+        if (!id || !name) {
+            console.warn(`Incomplete profile data for ${swifinId}:`, response.data);
+            return null;
+        }
+        return response.data;
     }
     catch (error) {
-        console.error('Swifin authentication error:', error?.response?.data || error.message);
+        console.error('Swifin API error:', error?.response?.data || error.message);
         return null;
     }
 };

@@ -14,6 +14,11 @@ model User {
   passwordHash     String   // ✅ Add this line
   name             String?
   email            String?
+  birthday         String?   // ✅ Add this
+  mobilePhone      String?   // ✅ Add this
+  address          String?   // ✅ Add this
+  postalCode       String?   // ✅ Add this
+  city             String?   // ✅ Add this
   country          String?
   gender           String?
   memberType       String?
