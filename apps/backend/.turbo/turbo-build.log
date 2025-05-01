@@ -2,3 +2,12 @@
 > backend@1.0.0 build /root/swifin-app/apps/backend
 > tsc
 
+[96msrc/db.ts[0m:[93m1[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"@prisma/client"' has no exported member 'PrismaClient'.
+
+[7m1[0m import { PrismaClient } from '@prisma/client';
+[7m [0m [91m         ~~~~~~~~~~~~[0m
+
+
+Found 1 error in src/db.ts[90m:1[0m
+
+[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 2.[39m

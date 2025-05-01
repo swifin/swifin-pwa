@@ -1,7 +1,6 @@
 // apps/backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -12,6 +11,7 @@ datasource db {
 model User {
   id               String   @id @default(cuid())
   swifinId         String   @unique
+  passwordHash     String   // ✅ Add this line
   name             String?
   email            String?
   country          String?
