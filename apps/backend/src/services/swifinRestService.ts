@@ -1,7 +1,7 @@
 // apps/backend/src/services/swifinRestService.ts
 import axios from 'axios';
 
-export const getMemberProfile = async (swifinId: string, password: string) => {
+export const authenticateUser = async (swifinId: string, password: string) => {
   const baseUrl = process.env.SWIFIN_BASE_URL;
   const credentials = Buffer.from(`${swifinId}:${password}`).toString('base64');
 

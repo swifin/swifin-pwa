@@ -2,3 +2,89 @@
 > backend@1.0.0 build /root/swifin-app/apps/backend
 > tsc
 
+[96msrc/controllers/authController.ts[0m:[93m3[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"../services/swifinRestService"' has no exported member 'authenticateSwifinUser'.
+
+[7m3[0m import { authenticateSwifinUser } from '../services/swifinRestService';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/controllers/authController.ts[0m:[93m4[0m:[93m10[0m - [91merror[0m[90m TS2724: [0m'"../services/swifinSoapService"' has no exported member named 'updateSwifinMember'. Did you mean 'updateMember'?
+
+[7m4[0m import { updateSwifinMember, registerSwifinMember } from '../services/swifinSoapService';
+[7m [0m [91m         ~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/services/swifinSoapService.ts[0m:[93m28[0m:[93m14[0m
+    [7m28[0m export const updateMember = async (memberData: Record<string, string>) => {
+    [7m  [0m [96m             ~~~~~~~~~~~~[0m
+    'updateMember' is declared here.
+
+[96msrc/controllers/authController.ts[0m:[93m4[0m:[93m30[0m - [91merror[0m[90m TS2724: [0m'"../services/swifinSoapService"' has no exported member named 'registerSwifinMember'. Did you mean 'registerMember'?
+
+[7m4[0m import { updateSwifinMember, registerSwifinMember } from '../services/swifinSoapService';
+[7m [0m [91m                             ~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/services/swifinSoapService.ts[0m:[93m11[0m:[93m14[0m
+    [7m11[0m export const registerMember = async (memberData: Record<string, string>) => {
+    [7m  [0m [96m             ~~~~~~~~~~~~~~[0m
+    'registerMember' is declared here.
+
+[96msrc/controllers/authController.ts[0m:[93m5[0m:[93m20[0m - [91merror[0m[90m TS2307: [0mCannot find module '../db' or its corresponding type declarations.
+
+[7m5[0m import prisma from '../db';
+[7m [0m [91m                   ~~~~~~~[0m
+
+[96msrc/controllers/userController.ts[0m:[93m3[0m:[93m20[0m - [91merror[0m[90m TS2307: [0mCannot find module 'bcryptjs' or its corresponding type declarations.
+
+[7m3[0m import bcrypt from 'bcryptjs';
+[7m [0m [91m                   ~~~~~~~~~~[0m
+
+[96msrc/controllers/userController.ts[0m:[93m4[0m:[93m66[0m - [91merror[0m[90m TS2307: [0mCannot find module '../services/userService' or its corresponding type declarations.
+
+[7m4[0m import { getUserBySwifinId, updateUserProfile, createUser } from '../services/userService';
+[7m [0m [91m                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/controllers/userController.ts[0m:[93m5[0m:[93m10[0m - [91merror[0m[90m TS2305: [0mModule '"../utils/soapClient"' has no exported member 'sendSoapRequest'.
+
+[7m5[0m import { sendSoapRequest } from '../utils/soapClient';
+[7m [0m [91m         ~~~~~~~~~~~~~~~[0m
+
+[96msrc/routes/routes.ts[0m:[93m6[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"../controllers/userController"' has no exported member 'updateProfile'.
+
+[7m6[0m   updateProfile,
+[7m [0m [91m  ~~~~~~~~~~~~~[0m
+
+[96msrc/routes/routes.ts[0m:[93m7[0m:[93m3[0m - [91merror[0m[90m TS2305: [0mModule '"../controllers/userController"' has no exported member 'registerProfile'.
+
+[7m7[0m   registerProfile,
+[7m [0m [91m  ~~~~~~~~~~~~~~~[0m
+
+[96msrc/server.ts[0m:[93m4[0m:[93m18[0m - [91merror[0m[90m TS2307: [0mCannot find module 'cors' or its corresponding type declarations.
+
+[7m4[0m import cors from 'cors';
+[7m [0m [91m                 ~~~~~~[0m
+
+[96msrc/server.ts[0m:[93m5[0m:[93m24[0m - [91merror[0m[90m TS2307: [0mCannot find module 'body-parser' or its corresponding type declarations.
+
+[7m5[0m import bodyParser from 'body-parser';
+[7m [0m [91m                       ~~~~~~~~~~~~~[0m
+
+[96msrc/services/swifinRestService.ts[0m:[93m2[0m:[93m19[0m - [91merror[0m[90m TS2307: [0mCannot find module 'axios' or its corresponding type declarations.
+
+[7m2[0m import axios from 'axios';
+[7m [0m [91m                  ~~~~~~~[0m
+
+[96msrc/services/swifinSoapService.ts[0m:[93m2[0m:[93m19[0m - [91merror[0m[90m TS2307: [0mCannot find module 'axios' or its corresponding type declarations.
+
+[7m2[0m import axios from 'axios';
+[7m [0m [91m                  ~~~~~~~[0m
+
+
+Found 13 errors in 6 files.
+
+Errors  Files
+     4  src/controllers/authController.ts[90m:3[0m
+     3  src/controllers/userController.ts[90m:3[0m
+     2  src/routes/routes.ts[90m:6[0m
+     2  src/server.ts[90m:4[0m
+     1  src/services/swifinRestService.ts[90m:2[0m
+     1  src/services/swifinSoapService.ts[90m:2[0m
+[41m[30m ELIFECYCLE [39m[49m [31mCommand failed with exit code 2.[39m
