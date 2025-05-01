@@ -1,0 +1,1 @@
+// activateService.ts content placeholder

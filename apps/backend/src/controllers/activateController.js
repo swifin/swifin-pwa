@@ -1,0 +1,1 @@
+// activateController.ts content placeholder

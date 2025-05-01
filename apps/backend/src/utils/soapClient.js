@@ -1,0 +1,1 @@
+// soapClient.ts content placeholder
