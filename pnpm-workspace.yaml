@@ -1,1 +1,4 @@
-// pnpm-workspace.yaml content placeholder
+packages:
+  - apps/*
+  - packages/*
+
