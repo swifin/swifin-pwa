@@ -27,13 +27,35 @@ const loginUser = async (req, res) => {
     const { swifinId, password } = req.body;
     try {
         const user = await (0, userService_1.getUserBySwifinId)(swifinId);
-        if (!user || !(await bcryptjs_1.default.compare(password, user.passwordHash))) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'User not found' });
         }
-        return res.json({ message: 'Login successful' });
+        const passwordMatch = await bcryptjs_1.default.compare(password, user.passwordHash);
+        if (!passwordMatch) {
+            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+        // Check if user profile is already confirmed
+        const isProfileConfirmed = user.name && user.country && user.memberType;
+        if (isProfileConfirmed) {
+            return res.status(200).json({
+                success: true,
+                redirect: '/dashboard',
+                message: 'Login successful. Redirecting to dashboard...',
+                user,
+            });
+        }
+        else {
+            return res.status(200).json({
+                success: true,
+                redirect: '/register',
+                message: 'Login successful. Redirecting to registration for confirmation...',
+                user,
+            });
+        }
     }
     catch (error) {
-        return res.status(500).json({ error: 'Login failed' });
+        console.error('Login error:', error);
+        return res.status(500).json({ success: false, message: 'Login failed' });
     }
 };
 exports.loginUser = loginUser;
@@ -54,7 +76,7 @@ const registerProfile = async (req, res) => {
     const profile = req.body;
     try {
         // Prepare SOAP body
-        const soapBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webservice.swifin.org/">
+        const soapBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webservice.swifin.com/">
         <soapenv:Header/>
         <soapenv:Body>
             <web:registerMember>

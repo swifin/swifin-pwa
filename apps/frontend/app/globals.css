@@ -1,0 +1,9 @@
+/* apps/frontend/app/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: base global styles */
+body {
+  @apply bg-white text-gray-900;
+}
