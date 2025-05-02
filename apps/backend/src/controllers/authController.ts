@@ -1,77 +1,65 @@
 // apps/backend/src/controllers/authController.ts
-import { Request, Response } from 'express';
-import { authenticateSwifinUser } from '../services/swifinRestService';
-import { getUserBySwifinId, createUser, updateProfile } from '../services/userService';
 
-import { sendSoapUpdateRequest } from '../utils/soapClient';
-import { SOAP_URL, ADMIN_SWIFIN_ID, ADMIN_PASSWORD } from '../config/constants';
+import { Request, Response } from 'express'
+import axios from 'axios'
+import { PrismaClient } from '@prisma/client'
 
-interface CustomValue {
-  internalName: string;
-  value: string;
-  possibleValueId?: number;
-}
+const prisma = new PrismaClient()
+const SWIFIN_REST_URL = 'https://api.swifin.com/rest/members/me'
 
 export const authenticateUser = async (req: Request, res: Response) => {
-  const { swifinId, password } = req.body;
+  const { swifinId, password } = req.body
 
   if (!swifinId || !password) {
-    return res.status(400).json({ error: 'Swifin ID and password are required.' });
+    return res.status(400).json({ error: 'Swifin ID and password are required' })
   }
 
   try {
-    // 1. Authenticate via Swifin REST API
-    const profile = await authenticateSwifinUser(swifinId, password);
+    // 🔒 Validate against Swifin REST API
+    const response = await axios.get(SWIFIN_REST_URL, {
+      auth: {
+        username: swifinId,
+        password,
+      },
+    })
 
-    if (!profile) {
-      return res.status(401).json({ error: 'Invalid Swifin ID or password.' });
+    const profile = response.data
+
+    if (!profile || !profile.username) {
+      return res.status(401).json({ error: 'Invalid credentials' })
     }
 
-    // 2. Extract customValues into a map
-    const customMap: Record<string, CustomValue> = {};
-    if (Array.isArray(profile.customValues)) {
-      for (const field of profile.customValues) {
-        customMap[field.internalName] = field;
-      }
+    // 🔍 Extract custom profile fields
+    const custom: Record<string, any> = {}
+    for (const field of profile.customValues || []) {
+      custom[field.internalName] = field.possibleValueId || field.value
     }
 
-    // 3. Build full prefilled profile from REST response
+    // ✅ Return pre-filled profile
     const prefilledProfile = {
-      swifinId: profile.username || swifinId,
+      swifin_id: profile.username,
       name: profile.name || '',
       email: profile.email || '',
-      mobilePhone: customMap.mobilePhone?.value || '',
-      birthday: customMap.birthday?.value || '',
-      gender: customMap.gender?.possibleValueId || null,
-      address: customMap.address?.value || '',
-      postalCode: customMap.postalCode?.value || '',
-      city: customMap.city?.value || '',
-      country: customMap.country?.possibleValueId || null,
-      memberType: customMap.memberType?.possibleValueId || null,
-      profileConfirmed: false
-    };
-
-    // 4. Check if user exists in local DB
-    let user = await getUserBySwifinId(swifinId);
-
-    if (user && user.profileConfirmed) {
-      return res.status(200).json({
-        redirect: '/dashboard',
-        profile: user
-      });
+      birthday: custom.birthday || '',
+      phone: custom.mobilePhone || '',
+      address: custom.address || '',
+      postal_code: custom.postalCode || '',
+      city: custom.city || '',
+      country: custom.country || '',
+      gender: custom.gender || '',
+      member_type: custom.memberType || '',
+      password_hash: password,
     }
 
-    // 5. If not confirmed or doesn't exist, update or create local record
-    user = await updateProfile(swifinId, prefilledProfile);
+    return res.status(200).json({ profile: prefilledProfile, redirect: '/confirm-profile' })
+  } catch (err: unknown) {
+    if (axios.isAxiosError(err)) {
+      console.error('[Swifin REST Auth Error]', err.response?.data || err.message)
+    } else {
+      console.error('[Unexpected Auth Error]', err)
+    }
 
-    return res.status(200).json({
-      redirect: '/confirm-profile',
-      profile: user
-    });
-
-  } catch (error: any) {
-    console.error('Authentication error:', error?.message || error);
-    return res.status(500).json({ error: 'Internal Server Error. Please try again.' });
+    return res.status(401).json({ error: 'Invalid Swifin ID or password' })
   }
-};
+}
 

@@ -1,163 +1,90 @@
-// apps/frontend/app/confirm-profile/page.tsx
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import countries from '../../utils/countries';
-import genders from '../../utils/genders';
-import memberTypes from '../../utils/membertypes';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { countries } from '@/utils/countries'
+import { genders } from '@/utils/genders'
+import { memberTypes } from '@/utils/membertypes'
+import { submitProfile } from '@/lib/api'
 
 export default function ConfirmProfilePage() {
-  const [profile, setProfile] = useState<any>(null);
-  const [error, setError] = useState('');
-  const router = useRouter();
+  const router = useRouter()
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    mobilePhone: '',
+    address: '',
+    postalCode: '',
+    city: '',
+    country: '',
+    gender: '',
+    memberType: '',
+  })
 
-  useEffect(() => {
-    const stored = localStorage.getItem('userProfile');
-    if (stored) {
-      setProfile(JSON.parse(stored));
-    }
-  }, []);
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleChange = (field: string, value: string | number) => {
-    setProfile((prev: any) => ({ ...prev, [field]: value }));
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-
-    const res = await fetch('/api/profile/confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(profile),
-    });
-
-    if (res.ok) {
-      router.push('/dashboard');
-    } else {
-      const body = await res.json();
-      setError(body.error || 'Profile confirmation failed.');
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      await submitProfile(form)
+      router.push('/wallet/activate')
+    } catch (err) {
+      setError('Failed to confirm profile.')
+    } finally {
+      setLoading(false)
     }
-  };
-
-  if (!profile) return <div className="p-4">Loading profile...</div>;
+  }
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4">Confirm Your Profile</h1>
+    <div className="max-w-xl mx-auto mt-8 p-6 bg-white rounded-lg shadow-lg">
+      <h1 className="text-2xl font-semibold mb-4 text-center">Confirm Your Profile</h1>
+      {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">Full Name</label>
-          <input
-            type="text"
-            value={profile.name || ''}
-            onChange={(e) => handleChange('name', e.target.value)}
-            className="w-full border rounded p-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Email</label>
-          <input
-            type="email"
-            value={profile.email || ''}
-            onChange={(e) => handleChange('email', e.target.value)}
-            className="w-full border rounded p-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Mobile Phone</label>
-          <input
-            type="text"
-            value={profile.mobilePhone || ''}
-            onChange={(e) => handleChange('mobilePhone', e.target.value)}
-            className="w-full border rounded p-2"
-            required
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Address</label>
-          <input
-            type="text"
-            value={profile.address || ''}
-            onChange={(e) => handleChange('address', e.target.value)}
-            className="w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Postal Code</label>
-          <input
-            type="text"
-            value={profile.postalCode || ''}
-            onChange={(e) => handleChange('postalCode', e.target.value)}
-            className="w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <label className="block mb-1">City</label>
-          <input
-            type="text"
-            value={profile.city || ''}
-            onChange={(e) => handleChange('city', e.target.value)}
-            className="w-full border rounded p-2"
-          />
-        </div>
-        <div>
-          <label className="block mb-1">Gender</label>
-          <select
-            value={profile.genderId || ''}
-            onChange={(e) => handleChange('genderId', parseInt(e.target.value))}
-            className="w-full border rounded p-2"
-          >
-            <option value="">Select Gender</option>
-            {genders.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-1">Country</label>
-          <select
-            value={profile.countryId || ''}
-            onChange={(e) => handleChange('countryId', parseInt(e.target.value))}
-            className="w-full border rounded p-2"
-          >
-            <option value="">Select Country</option>
-            {countries.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block mb-1">Member Type</label>
-          <select
-            value={profile.memberTypeId || ''}
-            onChange={(e) => handleChange('memberTypeId', parseInt(e.target.value))}
-            className="w-full border rounded p-2"
-          >
-            <option value="">Select Member Type</option>
-            {memberTypes.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name}
-              </option>
-            ))}
-          </select>
-        </div>
-        {error && <p className="text-red-600">{error}</p>}
+        <input className="input" name="name" value={form.name} onChange={handleChange} placeholder="Full Name" required />
+        <input className="input" name="email" value={form.email} onChange={handleChange} placeholder="Email" type="email" required />
+        <input className="input" name="mobilePhone" value={form.mobilePhone} onChange={handleChange} placeholder="Mobile Phone" required />
+        <input className="input" name="address" value={form.address} onChange={handleChange} placeholder="Address" />
+        <input className="input" name="postalCode" value={form.postalCode} onChange={handleChange} placeholder="Postal Code" />
+        <input className="input" name="city" value={form.city} onChange={handleChange} placeholder="City" />
+
+        <select className="input" name="country" value={form.country} onChange={handleChange} required>
+          <option value="">Select Country</option>
+          {countries.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+
+        <select className="input" name="gender" value={form.gender} onChange={handleChange} required>
+          <option value="">Select Gender</option>
+          {genders.map((g) => (
+            <option key={g.id} value={g.id}>{g.name}</option>
+          ))}
+        </select>
+
+        <select className="input" name="memberType" value={form.memberType} onChange={handleChange} required>
+          <option value="">Select Member Type</option>
+          {memberTypes.map((m) => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+
         <button
           type="submit"
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          disabled={loading}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition"
         >
-          Confirm and Continue
+          {loading ? 'Submitting...' : 'Confirm and Continue'}
         </button>
       </form>
     </div>
-  );
+  )
 }
+
 

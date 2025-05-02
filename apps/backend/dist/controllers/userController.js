@@ -1,101 +1,91 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerProfile = exports.updateProfile = exports.loginUser = exports.getUser = void 0;
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
-const soapClient_1 = require("../utils/soapClient");
-const constants_1 = require("../config/constants");
-const userService_1 = require("../services/userService");
-// GET USER BY SWIFIN ID
-const getUser = async (req, res) => {
-    const { swifinId } = req.params;
+exports.activateWallet = exports.registerNewUser = exports.submitProfile = void 0;
+const bcryptjs_1 = require("bcryptjs");
+const prisma_1 = require("../lib/prisma");
+const submitProfile = async (req, res) => {
     try {
-        const user = await (0, userService_1.getUserBySwifinId)(swifinId);
-        if (!user)
-            return res.status(404).json({ message: 'User not found' });
-        return res.json(user);
+        const { swifinId, password, name, email, phone, country, gender, birthday } = req.body;
+        const passwordHash = await (0, bcryptjs_1.hash)(password, 10);
+        const user = await prisma_1.prisma.user.upsert({
+            where: { swifin_id: swifinId },
+            update: {
+                name,
+                email,
+                phone,
+                country,
+                gender,
+                birthday,
+                password_hash: passwordHash,
+                profile_confirmed: true,
+            },
+            create: {
+                swifin_id: swifinId,
+                name,
+                email,
+                phone,
+                country,
+                gender,
+                birthday,
+                password_hash: passwordHash,
+                profile_confirmed: true,
+            },
+        });
+        res.status(200).json({ success: true, userId: user.id });
     }
-    catch (error) {
-        return res.status(500).json({ error: 'Internal server error' });
+    catch (err) {
+        console.error('Error in submitProfile:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-exports.getUser = getUser;
-// LOGIN
-const loginUser = async (req, res) => {
-    const { swifinId, password } = req.body;
+exports.submitProfile = submitProfile;
+const registerNewUser = async (req, res) => {
     try {
-        const user = await (0, userService_1.getUserBySwifinId)(swifinId);
+        const { swifinId, password, name, email, phone, country, gender, birthday } = req.body;
+        const passwordHash = await (0, bcryptjs_1.hash)(password, 10);
+        const user = await prisma_1.prisma.user.create({
+            data: {
+                swifin_id: swifinId,
+                name,
+                email,
+                phone,
+                country,
+                gender,
+                birthday,
+                password_hash: passwordHash,
+                profile_confirmed: true,
+            },
+        });
+        res.status(201).json({ success: true, userId: user.id });
+    }
+    catch (err) {
+        console.error('Error in registerNewUser:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+exports.registerNewUser = registerNewUser;
+const activateWallet = async (req, res) => {
+    try {
+        const { swifinId } = req.body;
+        const user = await prisma_1.prisma.user.findUnique({ where: { swifin_id: swifinId } });
         if (!user) {
-            return res.status(401).json({ success: false, message: 'User not found' });
+            return res.status(404).json({ error: 'User not found' });
         }
-        const passwordMatch = await bcryptjs_1.default.compare(password, user.passwordHash);
-        if (!passwordMatch) {
-            return res.status(401).json({ success: false, message: 'Invalid credentials' });
+        if (!user.profile_confirmed) {
+            return res.status(400).json({ error: 'Profile must be confirmed first' });
         }
-        // Check if user profile is already confirmed
-        const isProfileConfirmed = user.name && user.country && user.memberType;
-        if (isProfileConfirmed) {
-            return res.status(200).json({
-                success: true,
-                redirect: '/dashboard',
-                message: 'Login successful. Redirecting to dashboard...',
-                user,
-            });
+        if (user.wallet_activated) {
+            return res.status(400).json({ error: 'Wallet already activated' });
         }
-        else {
-            return res.status(200).json({
-                success: true,
-                redirect: '/register',
-                message: 'Login successful. Redirecting to registration for confirmation...',
-                user,
-            });
-        }
+        await prisma_1.prisma.user.update({
+            where: { swifin_id: swifinId },
+            data: { wallet_activated: true },
+        });
+        res.status(200).json({ success: true });
     }
-    catch (error) {
-        console.error('Login error:', error);
-        return res.status(500).json({ success: false, message: 'Login failed' });
+    catch (err) {
+        console.error('Error in activateWallet:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 };
-exports.loginUser = loginUser;
-// UPDATE PROFILE
-const updateProfile = async (req, res) => {
-    const { swifinId, profile } = req.body;
-    try {
-        const updatedUser = await (0, userService_1.updateProfile)(swifinId, profile);
-        return res.json(updatedUser);
-    }
-    catch (error) {
-        return res.status(500).json({ error: 'Profile update failed' });
-    }
-};
-exports.updateProfile = updateProfile;
-// REGISTER PROFILE
-const registerProfile = async (req, res) => {
-    const profile = req.body;
-    try {
-        // Prepare SOAP body
-        const soapBody = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:web="http://webservice.swifin.com/">
-        <soapenv:Header/>
-        <soapenv:Body>
-            <web:registerMember>
-                <member>
-                    <name>${profile.name}</name>
-                    <email>${profile.email}</email>
-                    <!-- Add other required fields -->
-                </member>
-            </web:registerMember>
-        </soapenv:Body>
-    </soapenv:Envelope>`;
-        const soapResponse = await (0, soapClient_1.sendSoapRequest)(constants_1.SOAP_URL, soapBody);
-        // Extract swifinId from response (mocked here)
-        const swifinId = soapResponse?.data?.swifinId || 'FAKE123456';
-        const newUser = await (0, userService_1.createUser)({ ...profile, swifinId });
-        return res.status(201).json(newUser);
-    }
-    catch (error) {
-        return res.status(500).json({ error: 'Registration failed' });
-    }
-};
-exports.registerProfile = registerProfile;
+exports.activateWallet = activateWallet;

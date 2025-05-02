@@ -1,28 +1,406 @@
-// apps/backend/prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id               String   @id @default(cuid())
-  swifinId         String   @unique
-  passwordHash     String   // ✅ Add this line
-  name             String?
-  email            String?
-  birthday         String?   // ✅ Add this
-  mobilePhone      String?   // ✅ Add this
-  address          String?   // ✅ Add this
-  postalCode       String?   // ✅ Add this
-  city             String?   // ✅ Add this
-  country          String?
-  gender           String?
-  memberType       String?
-  profileConfirmed Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+enum KycStatus {
+  pending
+  approved
+  rejected
 }
+
+enum Role {
+  customer
+  vendor
+  admin
+  driver
+}
+
+enum Gender {
+  male
+  female
+  other
+}
+
+enum MemberType {
+  individual
+  business
+  institution
+}
+
+enum VendorType {
+  product
+  service
+  delivery
+}
+
+enum SubscriptionPlan {
+  free
+  basic
+  premium
+  elite
+}
+
+enum VendorStatus {
+  active
+  pending
+  suspended
+}
+
+enum CategoryClassification {
+  product
+  service
+}
+
+enum ProductStatus {
+  active
+  out_of_stock
+  disabled
+}
+
+enum OrderStatus {
+  pending
+  paid
+  shipped
+  completed
+  cancelled
+}
+
+enum TransactionType {
+  deposit
+  withdraw
+  purchase
+  reward
+}
+
+enum TransactionStatus {
+  pending
+  completed
+  failed
+}
+
+enum RewardSource {
+  referral
+  sale
+  contribution
+}
+
+enum DocumentType {
+  passport
+  ID_card
+  drivers_license
+}
+
+enum DocumentStatus {
+  pending
+  approved
+  rejected
+}
+
+enum DriverType {
+  ride
+  delivery
+  both
+}
+
+enum AvailabilityStatus {
+  available
+  busy
+  offline
+}
+
+enum BookingStatus {
+  requested
+  accepted
+  enroute
+  completed
+  cancelled
+}
+
+enum ActivityType {
+  referral
+  ride_completion
+  listing_creation
+  course_completion
+  other
+}
+
+enum AnalyticsEventType {
+  user_signup
+  product_listing
+  service_listing
+  order_placed
+  ride_booked
+  delivery_booked
+  reward_earned
+}
+
+// 🔑 TENANTS
+model Tenant {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  users User[]
+}
+
+// 👤 USERS
+model User {
+  id                 String     @id @default(uuid())
+  tenant_id          String?
+  swifin_id          String     @unique
+  email              String?    @unique
+  phone              String?
+  password_hash      String
+  name               String?
+  gender             Gender?
+  birthday           DateTime?
+  member_type        MemberType?
+  kyc_status         KycStatus  @default(pending)
+  profile_confirmed  Boolean    @default(false)
+  wallet_activated   Boolean    @default(false)
+  country            String
+  role               Role       @default(customer)
+  created_at         DateTime   @default(now())
+  updated_at         DateTime   @updatedAt
+
+  tenant             Tenant?    @relation(fields: [tenant_id], references: [id])
+  wallet             Wallet?
+  vendor             Vendor?
+  driver             Driver?
+  kycDocuments       KycDocument[]
+  products           Product[]
+  orders             Order[]                @relation("BuyerOrders")
+  transactions       Transaction[]          @relation("UserTransactions")
+  rewards            SfnlReward[]
+  miningLogs         LabourMiningActivity[]
+  analytics          MarketplaceAnalytics[]
+  RideDeliveryBooking RideDeliveryBooking[]
+}
+
+// 💰 WALLETS
+model Wallet {
+  id                     String   @id @default(uuid())
+  user_id                String   @unique
+  user                   User     @relation(fields: [user_id], references: [id])
+  sfnc_balance           Decimal  @default(0.0)
+  sfnl_balance           Decimal  @default(0.0)
+  polygon_wallet_address String
+  created_at             DateTime @default(now())
+  updated_at             DateTime @updatedAt
+}
+
+// 🏪 VENDORS
+model Vendor {
+  id                String           @id @default(uuid())
+  user_id           String           @unique
+  user              User             @relation(fields: [user_id], references: [id])
+  vendor_name       String
+  vendor_type       VendorType
+  subscription_plan SubscriptionPlan
+  status            VendorStatus     @default(pending)
+  profile_image     String?
+  description       String
+  created_at        DateTime         @default(now())
+  updated_at        DateTime         @updatedAt
+
+  products           Product[]
+  orders             Order[]
+  membershipPayments VendorMembershipPayment[]
+}
+
+// 🧭 CATEGORIES
+model Category {
+  id             String                 @id @default(uuid())
+  parent_id      String?
+  parent         Category?              @relation("CategoryToParent", fields: [parent_id], references: [id])
+  children       Category[]             @relation("CategoryToParent")
+  name           String
+  slug           String
+  classification CategoryClassification
+  depth          Int
+  created_at     DateTime               @default(now())
+  updated_at     DateTime               @updatedAt
+
+  products Product[]
+}
+
+// 📦 PRODUCTS
+model Product {
+  id             String                 @id @default(uuid())
+  user_id        String
+  vendor_id      String
+  category_id    String
+  category       Category               @relation(fields: [category_id], references: [id])
+  user           User                   @relation(fields: [user_id], references: [id])
+  vendor         Vendor                 @relation(fields: [vendor_id], references: [id])
+  title          String
+  description    String
+  price          Decimal
+  stock_quantity Int?
+  media_urls     Json
+  status         ProductStatus
+  classification CategoryClassification
+  created_at     DateTime               @default(now())
+  updated_at     DateTime               @updatedAt
+
+  orderItems OrderItem[]
+}
+
+// 🛒 ORDERS
+model Order {
+  id                String      @id @default(uuid())
+  buyer_id          String
+  vendor_id         String
+  buyer             User        @relation("BuyerOrders", fields: [buyer_id], references: [id])
+  vendor            Vendor      @relation(fields: [vendor_id], references: [id])
+  total_amount_sfnc Decimal
+  status            OrderStatus
+  delivery_required Boolean
+  secret_code       String
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
+
+  items       OrderItem[]
+  transaction Transaction?
+}
+
+// 📦 ORDER ITEMS
+model OrderItem {
+  id              String  @id @default(uuid())
+  order_id        String
+  product_id      String
+  quantity        Int
+  price_each_sfnc Decimal
+
+  order   Order   @relation(fields: [order_id], references: [id])
+  product Product @relation(fields: [product_id], references: [id])
+}
+
+// 🔄 TRANSACTIONS
+model Transaction {
+  id                 String            @id @default(uuid())
+  user_id            String
+  related_order_id   String?           @unique
+  type               TransactionType
+  amount_sfnc        Decimal
+  blockchain_tx_hash String
+  status             TransactionStatus
+  created_at         DateTime          @default(now())
+
+  user  User   @relation("UserTransactions", fields: [user_id], references: [id])
+  order Order? @relation(fields: [related_order_id], references: [id])
+}
+
+// 🎁 SFNL REWARDS
+model SfnlReward {
+  id             String       @id @default(uuid())
+  user_id        String
+  source         RewardSource
+  amount_sfnl    Decimal
+  referral_level Int?
+  created_at     DateTime     @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+// 🛡 KYC DOCUMENTS
+model KycDocument {
+  id            String         @id @default(uuid())
+  user_id       String
+  document_type DocumentType
+  document_url  String
+  status        DocumentStatus
+  admin_notes   String?
+  created_at    DateTime       @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+// 🚗 DRIVERS
+model Driver {
+  id                   String             @id @default(uuid())
+  user_id              String             @unique
+  user                 User               @relation(fields: [user_id], references: [id])
+  driver_type          DriverType
+  vehicle_type         String
+  license_plate        String
+  availability_status  AvailabilityStatus
+  last_known_latitude  Decimal
+  last_known_longitude Decimal
+  rating               Decimal
+  total_rides          Int
+  total_deliveries     Int
+  created_at           DateTime           @default(now())
+  updated_at           DateTime           @updatedAt
+
+  bookings RideDeliveryBooking[]
+}
+
+// 🚕 RIDE/DELIVERY BOOKINGS
+model RideDeliveryBooking {
+  id                    String        @id @default(uuid())
+  rider_id              String
+  driver_id             String
+  pickup_latitude       Decimal
+  pickup_longitude      Decimal
+  dropoff_latitude      Decimal
+  dropoff_longitude     Decimal
+  estimated_distance_km Decimal
+  estimated_fare_sfnc   Decimal
+  status                BookingStatus
+  secret_code           String
+  completed_at          DateTime?
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+
+  rider  User   @relation(fields: [rider_id], references: [id])
+  driver Driver @relation(fields: [driver_id], references: [id])
+}
+
+// 💳 VENDOR MEMBERSHIP PAYMENTS
+model VendorMembershipPayment {
+  id                 String            @id @default(uuid())
+  vendor_id          String
+  plan_type          SubscriptionPlan
+  amount_paid_sfnc   Decimal
+  start_date         DateTime
+  end_date           DateTime
+  payment_status     TransactionStatus
+  blockchain_tx_hash String?
+  created_at         DateTime          @default(now())
+
+  vendor Vendor @relation(fields: [vendor_id], references: [id])
+}
+
+// ⛏️ LABOUR MINING LOG
+model LabourMiningActivity {
+  id                String       @id @default(uuid())
+  user_id           String
+  activity_type     ActivityType
+  description       String
+  reward_sfnl       Decimal
+  related_entity_id String?
+  created_at        DateTime     @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+// 📊 MARKETPLACE ANALYTICS
+model MarketplaceAnalytics {
+  id         String             @id @default(uuid())
+  event_type AnalyticsEventType
+  user_id    String?
+  metadata   Json
+  timestamp  DateTime           @default(now())
+
+  user User? @relation(fields: [user_id], references: [id])
+}
+
