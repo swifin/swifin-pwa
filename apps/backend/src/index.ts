@@ -1,21 +1,28 @@
 // apps/backend/src/index.ts
-import express from 'express';
-import cors from 'cors';
-import bodyParser from 'body-parser';
-import userRoutes from './routes/routes';
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import bodyParser from 'body-parser'
+import userRoutes from './routes/userRoutes'
+import walletRoutes from './routes/walletRoutes'
 
-const app = express();
+dotenv.config()
 
-app.use(cors());
-app.use(express.json());
-app.use(bodyParser.json());
+const app = express()
+const PORT = Number(process.env.PORT) || 3002
 
-// Routes
-app.use('/api', userRoutes);
+app.use(cors())
+app.use(bodyParser.json())
 
-// ✅ Start server on 0.0.0.0 so it's externally accessible
-const PORT = 3002; //parseInt(process.env.PORT || '3002', 10);
+app.use('/users', userRoutes)
+app.use('/wallet', walletRoutes)
+app.use('/api/wallet', walletRoutes)
+
+app.get('/', (_req, res) => {
+  res.send('🚀 Swifin Backend API is running.')
+})
+
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`✅ Backend running at http://0.0.0.0:${PORT}`);
-});
+  console.log(`✅ Backend running on http://localhost:${PORT}`)
+})
 

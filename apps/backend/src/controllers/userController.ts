@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { hash } from 'bcryptjs';
+import { hash, compare } from 'bcryptjs';
 import { prisma } from '../lib/prisma';
 
+// ✅ 1. Submit or update user profile
 export const submitProfile = async (req: Request, res: Response) => {
   try {
     const { swifinId, password, name, email, phone, country, gender, birthday } = req.body;
@@ -40,6 +41,7 @@ export const submitProfile = async (req: Request, res: Response) => {
   }
 };
 
+// ✅ 2. Register new user (when Swifin ID is not provided)
 export const registerNewUser = async (req: Request, res: Response) => {
   try {
     const { swifinId, password, name, email, phone, country, gender, birthday } = req.body;
@@ -67,6 +69,7 @@ export const registerNewUser = async (req: Request, res: Response) => {
   }
 };
 
+// ✅ 3. Activate user wallet
 export const activateWallet = async (req: Request, res: Response) => {
   try {
     const { swifinId } = req.body;
@@ -93,6 +96,45 @@ export const activateWallet = async (req: Request, res: Response) => {
     res.status(200).json({ success: true });
   } catch (err) {
     console.error('Error in activateWallet:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+// ✅ 4. Login user with Swifin ID + password
+export const loginUser = async (req: Request, res: Response) => {
+  try {
+    const { swifinId, password } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: { swifin_id: swifinId },
+      include: { wallet: true },
+    });
+
+    if (!user || !user.password_hash) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    const isValid = await compare(password, user.password_hash);
+
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    return res.status(200).json({
+      redirect: '/wallet/activate',
+      profile: {
+        name: user.name,
+        email: user.email,
+        swifinId: user.swifin_id,
+        memberType: user.member_type,
+        wallet: {
+          sfnc: user.wallet?.sfnc_balance.toNumber() || 0,
+          sfnl: user.wallet?.sfnl_balance.toNumber() || 0,
+        },
+      },
+    });
+  } catch (err) {
+    console.error('Error in loginUser:', err);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };

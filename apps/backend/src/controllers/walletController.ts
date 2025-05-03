@@ -1,54 +1,69 @@
-// ✅ File: apps/backend/src/controllers/walletController.ts
-import { Request, Response } from 'express';
-import { prisma } from '../lib/prisma';
+// apps/backend/src/controllers/walletController.ts
+import { Request, Response } from 'express'
+import { getTransactionSummary } from '../services/transactionService'
+import { prisma } from '../lib/prisma'
 
-export const getWalletSummary = async (req: Request, res: Response) => {
-  const { swifinId } = req.query;
-
-  if (!swifinId || typeof swifinId !== 'string') {
-    return res.status(400).json({ error: 'Swifin ID is required' });
-  }
+export const activateWallet = async (req: Request, res: Response) => {
+  const { swifinId } = req.body
 
   try {
     const user = await prisma.user.findUnique({
       where: { swifin_id: swifinId },
-      include: {
-        wallet: true,
-        transactions: true,
-      },
-    });
+    })
 
-    if (!user || !user.wallet) {
-      return res.status(404).json({ error: 'Wallet not found' });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
     }
 
-    const summary = {
-      balances: {
-        sfnc: user.wallet.sfnc_balance.toNumber(),
-        sfnl: user.wallet.sfnl_balance.toNumber(),
-      },
-      transactionSummary: {
-        deposit: 0,
-        withdraw: 0,
-        purchase: 0,
-        reward: 0,
-      },
-    };
-
-    const totals = await prisma.transaction.groupBy({
-      by: ['type'],
+    const existingWallet = await prisma.wallet.findUnique({
       where: { user_id: user.id },
-      _sum: { amount_sfnc: true },
-    });
+    })
 
-    for (const tx of totals) {
-      summary.transactionSummary[tx.type] = tx._sum.amount_sfnc?.toNumber() || 0;
+    if (!existingWallet) {
+      await prisma.wallet.create({
+        data: {
+          user_id: user.id,
+          sfnc_balance: 0,
+          sfnl_balance: 0,
+        },
+      })
     }
 
-    return res.status(200).json(summary);
+    return res.json({ success: true })
   } catch (err) {
-    console.error('[Wallet Summary Error]', err);
-    return res.status(500).json({ error: 'Server error' });
+    console.error('Activate Wallet Error:', err)
+    res.status(500).json({ error: 'Failed to activate wallet' })
   }
-};
+}
+
+export const getWalletSummary = async (req: Request, res: Response) => {
+  const { swifinId } = req.body
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { swifin_id: swifinId },
+    })
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const wallet = await prisma.wallet.findUnique({
+      where: { user_id: user.id },
+    })
+
+    const transactions = await getTransactionSummary(user.id)
+
+    return res.json({
+      balances: {
+        sfnc: wallet?.sfnc_balance.toNumber() || 0,
+        sfnl: wallet?.sfnl_balance.toNumber() || 0,
+      },
+      transactions,
+    })
+  } catch (err) {
+    console.error('Wallet Summary Error:', err)
+    res.status(500).json({ error: 'Something went wrong' })
+  }
+}
 

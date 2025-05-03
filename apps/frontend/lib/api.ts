@@ -1,39 +1,97 @@
 // apps/frontend/lib/api.ts
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3002'
 
-export async function post<T>(url: string, data: any): Promise<T> {
-  const res = await fetch(url, {
+export async function apiPost<T>(url: string, data: any): Promise<T> {
+  const res = await fetch(`${BASE_URL}${url}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   })
-  if (!res.ok) {
-    const message = await res.text()
-    throw new Error(`POST ${url} failed: ${message}`)
-  }
+  if (!res.ok) throw new Error('API request failed')
   return res.json()
 }
 
-export async function get<T>(url: string): Promise<T> {
-  const res = await fetch(url)
-  if (!res.ok) {
-    const message = await res.text()
-    throw new Error(`GET ${url} failed: ${message}`)
-  }
-  return res.json()
+// activateWallet
+export async function activateWallet(swifinId: string):Promise<{ success: boolean }>  {
+  return apiPost('/wallet/activate', { swifinId })
+}
+//getWalletSummary
+export async function getWalletSummary(
+  swifinId: string
+): Promise<{ balances: { sfnc: number; sfnl: number }; transactions: Record<string, number> }> {
+  return apiPost('/wallet/summary', { swifinId })
 }
 
-// --- Swifin Authenticated Calls (one-time actions) ---
-export const loginSwifinUser = (data: {
+
+
+// Users
+export async function submitProfile(data: {
+  swifinId?: string
+  name: string
+  gender: number
+  birthday: string
+  memberType: number
+  country: number
+}) {
+  return apiPost('/users/submit', data)
+}
+
+export async function registerUser(data: {
   swifinId: string
   password: string
-}) => post('/api/auth/login', data)
+  confirmPassword: string
+}) {
+  return apiPost('/users/register', data)
+}
 
-export const submitProfile = (data: any) => post('/api/users/submit', data)
+// Admin Summary & Activity
+export async function getAdminSummary(): Promise<{
+  users: number
+  wallets: number
+  transactions: number
+  sfncTotal: number
+  sfnlTotal: number
+}> {
+  return apiPost('/admin/summary', {})
+}
 
-export const registerNewUser = (data: any) => post('/api/users/register', data)
+export async function getTopContributors(): Promise<
+  { name: string; swifinId: string; sfnl: number }[]
+> {
+  return apiPost('/admin/contributors', {})
+}
 
-export const activateWallet = (data: { swifinId: string }) =>
-  post('/api/users/wallet', data)
+export async function getActivityLogs(): Promise<
+  { id: number; type: string; amount: number; time: string; user: string; swifinId: string }[]
+> {
+  return apiPost('/admin/logs', {})
+}
 
-export const getWalletSummary = () => get('/api/users/wallet')
+// ✅ Vendor Panel Functions
+export async function getVendors(): Promise<
+  {
+    id: string
+    type: string
+    active: boolean
+    name: string
+    email: string
+    swifinId: string
+    revenue: number
+  }[]
+> {
+  return apiPost('/admin/vendors', {})
+}
+
+export async function toggleVendorStatus(id: string, active: boolean) {
+  return apiPost('/admin/toggle-vendor', { id, active })
+}
+
+export async function sendVendorMessage(email: string, message: string) {
+  return apiPost('/admin/message', { email, message })
+}
+
+// ✅ Referral Tree
+export async function getReferralTree(): Promise<any> {
+  return apiPost('/admin/referrals', {})
+}
 
