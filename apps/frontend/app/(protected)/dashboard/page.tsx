@@ -1,6 +1,5 @@
-// ✅ 1. LIVE DATA SYNC + ✅ 2. CHART VISUALIZATION + ✅ 3. SESSION PERSISTENCE + ✅ 4. LOGOUT HANDLING
+// ✅ apps/frontend/app/dashboard/page.tsx
 
-// apps/frontend/app/dashboard/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -32,6 +31,7 @@ export default function DashboardPage() {
       const res = await fetch('/api/transactions', {
         headers: { Authorization: `Bearer ${token}` },
       })
+
       if (!res.ok) throw new Error('Failed to fetch transactions')
       const data = await res.json()
       setTransactions(data.transactions)
@@ -44,7 +44,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchTransactions()
-    const interval = setInterval(fetchTransactions, 10000) // 🔁 Live update every 10s
+    const interval = setInterval(fetchTransactions, 10000)
     return () => clearInterval(interval)
   }, [])
 
@@ -95,9 +95,12 @@ export default function DashboardPage() {
             {transactions.map((tx) => (
               <li key={tx.id} className="border p-3 rounded shadow-sm">
                 <p className="font-medium">
-                  {tx.type === 'credit' ? '+' : '-'}{tx.amount} SFNC
+                  {tx.type === 'credit' ? '+' : '-'}
+                  {tx.amount} SFNC
                 </p>
-                <p className="text-sm text-gray-500">{new Date(tx.createdAt).toLocaleString()}</p>
+                <p className="text-sm text-gray-500">
+                  {new Date(tx.createdAt).toLocaleString()}
+                </p>
               </li>
             ))}
           </ul>

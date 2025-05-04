@@ -1,26 +1,39 @@
 // apps/frontend/app/page.tsx
-'use client'
-
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function HomePage() {
-  const router = useRouter()
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white text-gray-800 p-6">
-      <h1 className="text-4xl font-bold mb-6 text-blue-700">🌍 Welcome to Swifin Wallet Portal</h1>
-      <p className="text-center mb-10 max-w-xl text-lg">
-        The unified digital system for global financial and economic inclusion.
-      </p>
-      <div className="flex gap-4">
-        <Button className="w-64" onClick={() => router.push('/login')}>
-          🔐 I already have a Swifin ID
-        </Button>
-        <Button className="w-64" variant="outline" onClick={() => router.push('/register')}>
-          ✨ I’m new, register me
-        </Button>
-      </div>
+    <div className="min-h-screen flex flex-col">
+      <header className="flex justify-between items-center p-6 border-b bg-white shadow-sm">
+        <h1 className="text-2xl font-bold">🌍 Swifin</h1>
+        <nav className="space-x-6">
+          <Link href="/about">About</Link>
+          <Link href="/marketplace">Marketplace</Link>
+          <Link href="/contact">Contact</Link>
+          <Link href="/auth/email-entry" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Login
+          </Link>
+        </nav>
+      </header>
+
+      <main className="flex-grow px-6 py-16 text-center">
+        <h2 className="text-4xl font-bold mb-6">Empowering Global Financial Inclusion</h2>
+        <p className="text-lg text-gray-600 max-w-xl mx-auto">
+          Swifin connects individuals, businesses, and governments to a unified digital platform for seamless value exchange and inclusive prosperity.
+        </p>
+        <div className="mt-10">
+          <Link href="/marketplace">
+            <button className="bg-green-600 text-white px-6 py-3 rounded hover:bg-green-700">
+              🌐 Explore Marketplace
+            </button>
+          </Link>
+        </div>
+      </main>
+
+      <footer className="bg-gray-100 p-6 text-center text-sm text-gray-500">
+        © {new Date().getFullYear()} Swifin Global. All rights reserved. | <Link href="/privacy">Privacy</Link> | <Link href="/terms">Terms</Link>
+      </footer>
     </div>
   )
 }
+

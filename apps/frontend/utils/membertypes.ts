@@ -1,6 +1,6 @@
 export const memberTypes = [
-  { id: '203', name: 'Customer' },
-  { id: '204', name: 'Product Vendor' },
-  { id: '205', name: 'Service Vendor' },
-  { id: '206', name: 'Delivery Vendor' }
+  { id: '203', name: 'Individual' },
+  { id: '204', name: 'Business' },
+  { id: '205', name: 'Corporation' },
+  { id: '206', name: 'State' }
 ];

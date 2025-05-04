@@ -1,61 +1,127 @@
+//✅ File: apps/frontend/app/(auth)/confirm-profile/page.tsx
 'use client'
-//apps/frontend/app/(auth)/confirm-profile/page.tsx
 
-import { useEffect, useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import countries from '@/utils/countries'
+import genders from '@/utils/genders'
+import memberTypes from '@/utils/membertypes'
 
 export default function ConfirmProfilePage() {
-  const [form, setForm] = useState<any>(null)
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    mobilePhone: '',
+    birthday: '',
+    gender: '',
+    address: '',
+    postalCode: '',
+    city: '',
+    country: '',
+    memberType: '',
+  })
+
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    const data = sessionStorage.getItem('swifin_profile')
-    if (!data) {
-      router.push('/swifin-id-check')
-    } else {
-      setForm(JSON.parse(data))
+    const storedProfile = sessionStorage.getItem('swifin_profile')
+    if (storedProfile) {
+      const parsed = JSON.parse(storedProfile)
+      setForm({
+        name: parsed.name || '',
+        email: parsed.email || '',
+        mobilePhone: parsed.customValues?.find(v => v.internalName === 'mobilePhone')?.value || '',
+        birthday: parsed.customValues?.find(v => v.internalName === 'birthday')?.value || '',
+        gender: parsed.customValues?.find(v => v.internalName === 'gender')?.possibleValueId || '',
+        address: parsed.customValues?.find(v => v.internalName === 'address')?.value || '',
+        postalCode: parsed.customValues?.find(v => v.internalName === 'postalCode')?.value || '',
+        city: parsed.customValues?.find(v => v.internalName === 'city')?.value || '',
+        country: parsed.customValues?.find(v => v.internalName === 'country')?.possibleValueId || '',
+        memberType: parsed.customValues?.find(v => v.internalName === 'memberType')?.possibleValueId || '',
+      })
     }
   }, [])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const res = await fetch('/auth/submit-profile', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    if (res.ok) {
-      router.push('/dashboard')
-    } else {
+    setLoading(true)
+    setError('')
+
+    try {
+      const swifinId = sessionStorage.getItem('swifin_id')
+      const password = sessionStorage.getItem('swifin_password')
+
+      const res = await fetch('/auth/update-profile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          swifinId,
+          password,
+          ...form,
+          gender: Number(form.gender),
+          country: Number(form.country),
+          memberType: Number(form.memberType),
+        }),
+      })
+
       const data = await res.json()
-      setError(data?.error || 'Something went wrong')
+      if (!res.ok) throw new Error(data.error || 'Profile update failed')
+
+      router.push('/(auth)/verify-otp')
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong')
+    } finally {
+      setLoading(false)
     }
   }
 
-  if (!form) return null
-
   return (
-    <div className="max-w-lg mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Confirm Your Profile</h1>
-      <form onSubmit={handleSubmit}>
-        {['name', 'email', 'birthday', 'phone', 'address', 'postal_code', 'city', 'country'].map((field) => (
-          <input
-            key={field}
-            className="w-full mb-3 p-2 border rounded"
-            name={field}
-            placeholder={field.replace('_', ' ')}
-            value={form[field] || ''}
-            onChange={handleChange}
-          />
-        ))}
-        <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">Activate Account</button>
-        {error && <p className="text-red-500 mt-2">{error}</p>}
+    <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow">
+      <h2 className="text-2xl font-bold mb-4">Confirm Your Profile</h2>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input name="name" value={form.name} onChange={handleChange} placeholder="Full Name" className="p-2 border rounded" required />
+        <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" className="p-2 border rounded" required />
+        <input name="mobilePhone" value={form.mobilePhone} onChange={handleChange} placeholder="Mobile Phone" className="p-2 border rounded" required />
+        <input name="birthday" type="date" value={form.birthday} onChange={handleChange} className="p-2 border rounded" required />
+
+        <select name="gender" value={form.gender} onChange={handleChange} className="p-2 border rounded" required>
+          <option value="">Select Gender</option>
+          {genders.map(g => (
+            <option key={g.id} value={g.id}>{g.name}</option>
+          ))}
+        </select>
+
+        <input name="address" value={form.address} onChange={handleChange} placeholder="Address" className="p-2 border rounded" required />
+        <input name="postalCode" value={form.postalCode} onChange={handleChange} placeholder="Postal Code" className="p-2 border rounded" required />
+        <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="p-2 border rounded" required />
+
+        <select name="country" value={form.country} onChange={handleChange} className="p-2 border rounded" required>
+          <option value="">Select Country</option>
+          {countries.map(c => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
+
+        <select name="memberType" value={form.memberType} onChange={handleChange} className="p-2 border rounded" required>
+          <option value="">Select Member Type</option>
+          {memberTypes.map(m => (
+            <option key={m.id} value={m.id}>{m.name}</option>
+          ))}
+        </select>
+
+        {error && <p className="text-red-600 col-span-2">{error}</p>}
+
+        <button type="submit" disabled={loading} className="col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
+          {loading ? 'Submitting...' : 'Confirm and Continue'}
+        </button>
       </form>
     </div>
   )
 }
+

@@ -1,4 +1,4 @@
-// apps/frontend/app/(auth)/verify-otp/page.tsx
+// ✅ apps/frontend/app/(auth)/verify-otp/page.tsx
 'use client'
 
 import { useState } from 'react'
@@ -8,14 +8,16 @@ export default function VerifyOtpPage() {
   const [otp, setOtp] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [resent, setResent] = useState(false)
   const router = useRouter()
+
+  const email = sessionStorage.getItem('otp_email') || ''
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const email = sessionStorage.getItem('otp_email') || ''
     if (!email) {
       setError('Session expired. Please re-enter your email.')
       setLoading(false)
@@ -23,12 +25,12 @@ export default function VerifyOtpPage() {
     }
 
     try {
-      const res = await fetch('/auth/verify-otp', {
+      const res = await fetch('/auth/otp/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email, code: otp }),
       })
 
       const data = await res.json()
@@ -37,15 +39,11 @@ export default function VerifyOtpPage() {
         throw new Error(data.error || 'OTP verification failed')
       }
 
-      // ✅ Store JWT in localStorage
       if (data.token) {
-        localStorage.setItem('auth_token', data.token)
+        localStorage.setItem('session_token', data.token)
       }
 
-      // ✅ Clear email session storage
       sessionStorage.removeItem('otp_email')
-
-      // 🚀 Redirect to dashboard
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.message || 'An error occurred')
@@ -54,11 +52,26 @@ export default function VerifyOtpPage() {
     }
   }
 
+  const handleResend = async () => {
+    setResent(false)
+    try {
+      const res = await fetch('/auth/email-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (!res.ok) throw new Error('Failed to resend OTP')
+      setResent(true)
+    } catch (err: any) {
+      setError(err.message || 'Could not resend OTP')
+    }
+  }
+
   return (
     <div className="max-w-md mx-auto mt-20 p-6 border rounded shadow">
       <h2 className="text-2xl font-bold mb-4">Verify OTP</h2>
       <p className="mb-4 text-sm text-gray-600">
-        Enter the 6-digit OTP sent to your email address.
+        Enter the 6-digit OTP sent to your email <strong>{email}</strong>
       </p>
       <form onSubmit={handleSubmit}>
         <input
@@ -66,6 +79,7 @@ export default function VerifyOtpPage() {
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           placeholder="Enter OTP"
+          maxLength={6}
           className="w-full p-2 border rounded mb-3"
           required
         />
@@ -78,6 +92,15 @@ export default function VerifyOtpPage() {
           {loading ? 'Verifying...' : 'Verify & Continue'}
         </button>
       </form>
+      <div className="mt-4 text-center">
+        <button
+          onClick={handleResend}
+          className="text-blue-600 text-sm underline"
+        >
+          Resend OTP
+        </button>
+        {resent && <p className="text-green-600 text-sm mt-2">OTP resent successfully.</p>}
+      </div>
     </div>
   )
 }
