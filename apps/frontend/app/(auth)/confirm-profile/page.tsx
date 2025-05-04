@@ -1,11 +1,22 @@
-//✅ File: apps/frontend/app/(auth)/confirm-profile/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import countries from '@/utils/countries'
-import genders from '@/utils/genders'
-import memberTypes from '@/utils/membertypes'
+import { countries } from '@/utils/countries'
+import { genders } from '@/utils/genders'
+import { memberTypes } from '@/utils/membertypes'
+
+interface CustomValue {
+  internalName: string
+  value?: string
+  possibleValueId?: string
+}
+
+interface ParsedProfile {
+  name?: string
+  email?: string
+  customValues?: CustomValue[]
+}
 
 export default function ConfirmProfilePage() {
   const [form, setForm] = useState({
@@ -28,18 +39,20 @@ export default function ConfirmProfilePage() {
   useEffect(() => {
     const storedProfile = sessionStorage.getItem('swifin_profile')
     if (storedProfile) {
-      const parsed = JSON.parse(storedProfile)
+      const parsed: ParsedProfile = JSON.parse(storedProfile)
+      const getValue = (key: string) => parsed.customValues?.find((v: CustomValue) => v.internalName === key)
+
       setForm({
         name: parsed.name || '',
         email: parsed.email || '',
-        mobilePhone: parsed.customValues?.find(v => v.internalName === 'mobilePhone')?.value || '',
-        birthday: parsed.customValues?.find(v => v.internalName === 'birthday')?.value || '',
-        gender: parsed.customValues?.find(v => v.internalName === 'gender')?.possibleValueId || '',
-        address: parsed.customValues?.find(v => v.internalName === 'address')?.value || '',
-        postalCode: parsed.customValues?.find(v => v.internalName === 'postalCode')?.value || '',
-        city: parsed.customValues?.find(v => v.internalName === 'city')?.value || '',
-        country: parsed.customValues?.find(v => v.internalName === 'country')?.possibleValueId || '',
-        memberType: parsed.customValues?.find(v => v.internalName === 'memberType')?.possibleValueId || '',
+        mobilePhone: getValue('mobilePhone')?.value || '',
+        birthday: getValue('birthday')?.value || '',
+        gender: getValue('gender')?.possibleValueId || '',
+        address: getValue('address')?.value || '',
+        postalCode: getValue('postalCode')?.value || '',
+        city: getValue('city')?.value || '',
+        country: getValue('country')?.possibleValueId || '',
+        memberType: getValue('memberType')?.possibleValueId || '',
       })
     }
   }, [])

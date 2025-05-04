@@ -3,6 +3,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* DO NOT import plugins here! */
+
 .input {
   @apply w-full border rounded p-2;
 }
+

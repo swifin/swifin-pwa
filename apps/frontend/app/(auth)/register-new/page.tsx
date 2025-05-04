@@ -4,9 +4,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
-import countries from '@/utils/countries'
-import genders from '@/utils/genders'
-import memberTypes from '@/utils/membertypes'
+import { countries } from '@/utils/countries'
+import { genders } from '@/utils/genders'
+import { memberTypes } from '@/utils/membertypes'
 
 export default function RegisterNewUserPage() {
   const [form, setForm] = useState({

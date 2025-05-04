@@ -1,7 +1,11 @@
 import { Request, Response } from 'express';
 import { prisma } from '@/lib/prisma';
 
-import { sendEmail } from '@/utils/sendEmail';
+import { 
+  sendOtpToEmail,
+  sendEmail
+} from '@/utils/sendEmail';
+
 import { generateOtp } from '@/utils/otp';
 
 export const sendOtp = async (req: Request, res: Response) => {

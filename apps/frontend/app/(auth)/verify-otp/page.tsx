@@ -1,7 +1,6 @@
-// ✅ apps/frontend/app/(auth)/verify-otp/page.tsx
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function VerifyOtpPage() {
@@ -9,9 +8,18 @@ export default function VerifyOtpPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const [resent, setResent] = useState(false)
+  const [email, setEmail] = useState('')
   const router = useRouter()
 
-  const email = sessionStorage.getItem('otp_email') || ''
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedEmail = sessionStorage.getItem('otp_email') || ''
+      if (!storedEmail) {
+        setError('Session expired. Please re-enter your email.')
+      }
+      setEmail(storedEmail)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,11 +47,13 @@ export default function VerifyOtpPage() {
         throw new Error(data.error || 'OTP verification failed')
       }
 
-      if (data.token) {
-        localStorage.setItem('session_token', data.token)
+      if (typeof window !== 'undefined') {
+        if (data.token) {
+          localStorage.setItem('session_token', data.token)
+        }
+        sessionStorage.removeItem('otp_email')
       }
 
-      sessionStorage.removeItem('otp_email')
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.message || 'An error occurred')
@@ -99,7 +109,11 @@ export default function VerifyOtpPage() {
         >
           Resend OTP
         </button>
-        {resent && <p className="text-green-600 text-sm mt-2">OTP resent successfully.</p>}
+        {resent && (
+          <p className="text-green-600 text-sm mt-2">
+            OTP resent successfully.
+          </p>
+        )}
       </div>
     </div>
   )
