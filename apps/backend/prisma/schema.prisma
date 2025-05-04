@@ -139,6 +139,16 @@ enum AnalyticsEventType {
   reward_earned
 }
 
+// ✅ OTP
+model Otp {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  code      String
+  expiresAt DateTime
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
 // 🔑 TENANTS
 model Tenant {
   id          String   @id @default(uuid())
@@ -153,35 +163,35 @@ model Tenant {
 
 // 👤 USERS
 model User {
-  id                 String     @id @default(uuid())
-  tenant_id          String?
-  swifin_id          String     @unique
-  email              String?    @unique
-  phone              String?
-  password_hash      String
-  name               String?
-  gender             Gender?
-  birthday           DateTime?
-  member_type        MemberType?
-  kyc_status         KycStatus  @default(pending)
-  profile_confirmed  Boolean    @default(false)
-  wallet_activated   Boolean    @default(false)
-  country            String
-  role               Role       @default(customer)
-  created_at         DateTime   @default(now())
-  updated_at         DateTime   @updatedAt
+  id                String      @id @default(uuid())
+  tenant_id         String?
+  swifin_id         String      @unique
+  email             String?     @unique
+  phone             String?
+  password_hash     String
+  name              String?
+  gender            Gender?
+  birthday          DateTime?
+  member_type       MemberType?
+  kyc_status        KycStatus   @default(pending)
+  profile_confirmed Boolean     @default(false)
+  wallet_activated  Boolean     @default(false)
+  country           String
+  role              Role        @default(customer)
+  created_at        DateTime    @default(now())
+  updated_at        DateTime    @updatedAt
 
-  tenant             Tenant?    @relation(fields: [tenant_id], references: [id])
-  wallet             Wallet?
-  vendor             Vendor?
-  driver             Driver?
-  kycDocuments       KycDocument[]
-  products           Product[]
-  orders             Order[]                @relation("BuyerOrders")
-  transactions       Transaction[]          @relation("UserTransactions")
-  rewards            SfnlReward[]
-  miningLogs         LabourMiningActivity[]
-  analytics          MarketplaceAnalytics[]
+  tenant              Tenant?                @relation(fields: [tenant_id], references: [id])
+  wallet              Wallet?
+  vendor              Vendor?
+  driver              Driver?
+  kycDocuments        KycDocument[]
+  products            Product[]
+  orders              Order[]                @relation("BuyerOrders")
+  transactions        Transaction[]          @relation("UserTransactions")
+  rewards             SfnlReward[]
+  miningLogs          LabourMiningActivity[]
+  analytics           MarketplaceAnalytics[]
   RideDeliveryBooking RideDeliveryBooking[]
 }
 
@@ -199,18 +209,18 @@ model Wallet {
 
 // 🏪 VENDORS
 model Vendor {
-  id                String           @id @default(uuid())
-  user_id           String           @unique
-  user              User             @relation(fields: [user_id], references: [id])
-  vendor_name       String
-  vendor_type       VendorType
-  subscription_plan SubscriptionPlan
-  status            VendorStatus     @default(pending)
-  profile_image     String?
-  description       String
-  created_at        DateTime         @default(now())
-  updated_at        DateTime         @updatedAt
-
+  id                 String                    @id @default(uuid())
+  user_id            String                    @unique
+  user               User                      @relation(fields: [user_id], references: [id])
+  vendor_name        String
+  vendor_type        VendorType
+  subscription_plan  SubscriptionPlan
+  status             VendorStatus              @default(pending)
+  profile_image      String?
+  description        String
+  created_at         DateTime                  @default(now())
+  updated_at         DateTime                  @updatedAt
+  transactions       Transaction[]             @relation("VendorTransactions")
   products           Product[]
   orders             Order[]
   membershipPayments VendorMembershipPayment[]
@@ -294,9 +304,10 @@ model Transaction {
   blockchain_tx_hash String
   status             TransactionStatus
   created_at         DateTime          @default(now())
-
-  user  User   @relation("UserTransactions", fields: [user_id], references: [id])
-  order Order? @relation(fields: [related_order_id], references: [id])
+  vendor             Vendor?           @relation("VendorTransactions", fields: [vendorId], references: [id])
+  vendorId           String? // 👈 Add this if missing
+  user               User              @relation("UserTransactions", fields: [user_id], references: [id])
+  order              Order?            @relation(fields: [related_order_id], references: [id])
 }
 
 // 🎁 SFNL REWARDS
@@ -403,4 +414,3 @@ model MarketplaceAnalytics {
 
   user User? @relation(fields: [user_id], references: [id])
 }
-

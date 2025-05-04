@@ -1,5 +1,4 @@
 "use strict";
-// apps/backend/src/controllers/authController.ts
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -15,24 +14,19 @@ const authenticateUser = async (req, res) => {
         return res.status(400).json({ error: 'Swifin ID and password are required' });
     }
     try {
-        // 🔒 Validate against Swifin REST API
         const response = await axios_1.default.get(SWIFIN_REST_URL, {
-            auth: {
-                username: swifinId,
-                password,
-            },
+            auth: { username: swifinId, password },
+            timeout: 5000, // Set timeout for production resilience
         });
         const profile = response.data;
-        if (!profile || !profile.username) {
+        if (!profile?.username) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
-        // 🔍 Extract custom profile fields
-        const custom = {};
-        for (const field of profile.customValues || []) {
-            custom[field.internalName] = field.possibleValueId || field.value;
-        }
-        // ✅ Return pre-filled profile
-        const prefilledProfile = {
+        const custom = Object.fromEntries((profile.customValues || []).map((field) => [
+            field.internalName,
+            field.possibleValueId || field.value,
+        ]));
+        const safeProfile = {
             swifin_id: profile.username,
             name: profile.name || '',
             email: profile.email || '',
@@ -44,17 +38,12 @@ const authenticateUser = async (req, res) => {
             country: custom.country || '',
             gender: custom.gender || '',
             member_type: custom.memberType || '',
-            password_hash: password,
         };
-        return res.status(200).json({ profile: prefilledProfile, redirect: '/confirm-profile' });
+        // Don't return password_hash in response — store it client-side only if absolutely needed
+        return res.status(200).json({ profile: safeProfile, redirect: '/confirm-profile' });
     }
     catch (err) {
-        if (axios_1.default.isAxiosError(err)) {
-            console.error('[Swifin REST Auth Error]', err.response?.data || err.message);
-        }
-        else {
-            console.error('[Unexpected Auth Error]', err);
-        }
+        console.error('[Swifin Auth Error]', err?.response?.data || err.message);
         return res.status(401).json({ error: 'Invalid Swifin ID or password' });
     }
 };

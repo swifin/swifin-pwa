@@ -1,19 +1,20 @@
-import { hash } from 'bcryptjs';
-import { prisma } from '../lib/prisma';
+// apps/backend/src/services/userService.ts
+import { prisma } from '../lib/prisma'
+import { hash } from 'bcryptjs'
 
-interface UserProfileInput {
-  swifinId: string;
-  password: string;
-  name: string;
-  email: string;
-  phone: string;
-  country: string;
-  gender?: string | null;
-  birthday?: string | null;
+export interface ProfileData {
+  swifinId: string
+  password: string
+  name: string
+  email: string
+  phone: string
+  country: string
+  gender: 'male' | 'female' | 'other'
+  birthday: string
 }
 
-export const upsertUserProfile = async (profile: UserProfileInput) => {
-  const passwordHash = await hash(profile.password, 10);
+export const upsertUserProfile = async (profile: ProfileData) => {
+  const passwordHash = await hash(profile.password, 10)
 
   return prisma.user.upsert({
     where: { swifin_id: profile.swifinId },
@@ -22,8 +23,8 @@ export const upsertUserProfile = async (profile: UserProfileInput) => {
       email: profile.email,
       phone: profile.phone,
       country: profile.country,
-      gender: profile.gender ?? undefined,
-      birthday: profile.birthday ?? undefined,
+      gender: profile.gender as any,
+      birthday: profile.birthday,
       password_hash: passwordHash,
       profile_confirmed: true,
     },
@@ -33,10 +34,11 @@ export const upsertUserProfile = async (profile: UserProfileInput) => {
       email: profile.email,
       phone: profile.phone,
       country: profile.country,
-      gender: profile.gender ?? undefined,
-      birthday: profile.birthday ?? undefined,
+      gender: profile.gender as any,
+      birthday: profile.birthday,
       password_hash: passwordHash,
       profile_confirmed: true,
     },
-  });
-};
+  })
+}
+

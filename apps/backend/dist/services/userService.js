@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.upsertUserProfile = void 0;
-const bcryptjs_1 = require("bcryptjs");
+// apps/backend/src/services/userService.ts
 const prisma_1 = require("../lib/prisma");
+const bcryptjs_1 = require("bcryptjs");
 const upsertUserProfile = async (profile) => {
     const passwordHash = await (0, bcryptjs_1.hash)(profile.password, 10);
     return prisma_1.prisma.user.upsert({
@@ -12,8 +13,8 @@ const upsertUserProfile = async (profile) => {
             email: profile.email,
             phone: profile.phone,
             country: profile.country,
-            gender: profile.gender ?? undefined,
-            birthday: profile.birthday ?? undefined,
+            gender: profile.gender,
+            birthday: profile.birthday,
             password_hash: passwordHash,
             profile_confirmed: true,
         },
@@ -23,8 +24,8 @@ const upsertUserProfile = async (profile) => {
             email: profile.email,
             phone: profile.phone,
             country: profile.country,
-            gender: profile.gender ?? undefined,
-            birthday: profile.birthday ?? undefined,
+            gender: profile.gender,
+            birthday: profile.birthday,
             password_hash: passwordHash,
             profile_confirmed: true,
         },

@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activateWallet = exports.registerNewUser = exports.submitProfile = void 0;
+exports.loginUser = exports.activateWallet = exports.registerNewUser = exports.submitProfile = void 0;
 const bcryptjs_1 = require("bcryptjs");
 const prisma_1 = require("../lib/prisma");
+// ✅ 1. Submit or update user profile
 const submitProfile = async (req, res) => {
     try {
         const { swifinId, password, name, email, phone, country, gender, birthday } = req.body;
@@ -39,6 +40,7 @@ const submitProfile = async (req, res) => {
     }
 };
 exports.submitProfile = submitProfile;
+// ✅ 2. Register new user (when Swifin ID is not provided)
 const registerNewUser = async (req, res) => {
     try {
         const { swifinId, password, name, email, phone, country, gender, birthday } = req.body;
@@ -64,6 +66,7 @@ const registerNewUser = async (req, res) => {
     }
 };
 exports.registerNewUser = registerNewUser;
+// ✅ 3. Activate user wallet
 const activateWallet = async (req, res) => {
     try {
         const { swifinId } = req.body;
@@ -89,3 +92,38 @@ const activateWallet = async (req, res) => {
     }
 };
 exports.activateWallet = activateWallet;
+// ✅ 4. Login user with Swifin ID + password
+const loginUser = async (req, res) => {
+    try {
+        const { swifinId, password } = req.body;
+        const user = await prisma_1.prisma.user.findUnique({
+            where: { swifin_id: swifinId },
+            include: { wallet: true },
+        });
+        if (!user || !user.password_hash) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        const isValid = await (0, bcryptjs_1.compare)(password, user.password_hash);
+        if (!isValid) {
+            return res.status(401).json({ error: 'Invalid credentials' });
+        }
+        return res.status(200).json({
+            redirect: '/wallet/activate',
+            profile: {
+                name: user.name,
+                email: user.email,
+                swifinId: user.swifin_id,
+                memberType: user.member_type,
+                wallet: {
+                    sfnc: user.wallet?.sfnc_balance.toNumber() || 0,
+                    sfnl: user.wallet?.sfnl_balance.toNumber() || 0,
+                },
+            },
+        });
+    }
+    catch (err) {
+        console.error('Error in loginUser:', err);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+exports.loginUser = loginUser;

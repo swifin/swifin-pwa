@@ -1,15 +1,28 @@
 // apps/frontend/lib/api.ts
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3002'
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://75.119.136.87:3002'
 
 export async function apiPost<T>(url: string, data: any): Promise<T> {
-  const res = await fetch(`${BASE_URL}${url}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  if (!res.ok) throw new Error('API request failed')
-  return res.json()
+  try {
+    const res = await fetch(`${BASE_URL}${url}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+
+    if (!res.ok) {
+      const errText = await res.text()
+      console.error(`❌ API request failed: ${res.status} ${res.statusText}\n${errText}`)
+      throw new Error('API request failed')
+    }
+
+    return await res.json()
+  } catch (err) {
+    console.error('❌ apiPost error:', err)
+    throw err
+  }
 }
+
+
 
 // activateWallet
 export async function activateWallet(swifinId: string):Promise<{ success: boolean }>  {

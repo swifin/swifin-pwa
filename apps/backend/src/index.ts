@@ -3,8 +3,8 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import bodyParser from 'body-parser'
-import userRoutes from './routes/userRoutes'
-import walletRoutes from './routes/walletRoutes'
+import routes from './routes'
+import 'module-alias/register';
 
 dotenv.config()
 
@@ -14,9 +14,7 @@ const PORT = Number(process.env.PORT) || 3002
 app.use(cors())
 app.use(bodyParser.json())
 
-app.use('/users', userRoutes)
-app.use('/wallet', walletRoutes)
-app.use('/api/wallet', walletRoutes)
+app.use('/api', routes)
 
 app.get('/', (_req, res) => {
   res.send('🚀 Swifin Backend API is running.')
