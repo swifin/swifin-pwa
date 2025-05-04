@@ -1,3 +1,5 @@
+//✅apps/backend/src/controllers/user/userController.ts
+
 import { Request, Response } from 'express';
 import { prisma } from '@/lib/prisma';
 
