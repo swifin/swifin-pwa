@@ -1,25 +1,31 @@
 // apps/frontend/app/layout.tsx
-import '../styles/globals.css';
-import React from 'react';
+import '@/styles/globals.css'
+import type { Metadata } from 'next'
+import { ReactNode } from 'react'
+import { Inter } from 'next/font/google'
 
-export const metadata = {
-  title: 'Swifin App',
-  description: 'Inclusive Prosperity With Financial and Economic Inclusion',
-};
+import NavBar from '@/components/NavBar'
+import Footer from '@/components/Footer'
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+const inter = Inter({ subsets: ['latin'] })
+
+export const metadata: Metadata = {
+  title: 'Swifin',
+  description: 'Empowering Global Financial and Economic Inclusion',
+}
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <header className="bg-blue-600 text-white p-4">
-          <div className="max-w-5xl mx-auto text-lg font-bold">Swifin Wallet Portal</div>
-        </header>
-        <main className="max-w-3xl mx-auto p-4">{children}</main>
-        <footer className="bg-gray-100 text-center py-4 mt-10 text-sm text-gray-500">
-          © {new Date().getFullYear()} Swifin. All rights reserved.
-        </footer>
+      <body className={`${inter.className} min-h-screen bg-white text-gray-800`}>
+        {/* Place imported NavBar here */}
+        <NavBar />
+        {/* Place main content here */}
+        <main className="max-w-3xl mx-auto p-6">{children}</main>
+        {/* Place imported Footer here */}
+        <Footer />
       </body>
     </html>
-  );
+  )
 }
 
