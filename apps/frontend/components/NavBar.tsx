@@ -13,7 +13,7 @@ export default function NavBar() {
           <Link href="/marketplace" className="hover:underline">Marketplace</Link>
           <Link href="/contact" className="hover:underline">Contact</Link>
           <Link
-            href="/auth/email-entry"
+            href="/email-entry"
             className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
             Login
