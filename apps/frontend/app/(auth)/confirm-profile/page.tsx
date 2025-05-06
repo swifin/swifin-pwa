@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { countries } from '@/utils/countries'
 import { genders } from '@/utils/genders'
@@ -8,130 +8,229 @@ import { memberTypes } from '@/utils/membertypes'
 
 interface CustomValue {
   internalName: string
-  value?: string
-  possibleValueId?: string
-}
-
-interface ParsedProfile {
-  name?: string
-  email?: string
-  customValues?: CustomValue[]
+  fieldId: number
+  value: string
+  possibleValueId?: number
 }
 
 export default function ConfirmProfilePage() {
-  const [form, setForm] = useState({
-    name: '',
-    email: '',
-    mobilePhone: '',
-    birthday: '',
-    gender: '',
-    address: '',
-    postalCode: '',
-    city: '',
-    country: '',
-    memberType: '',
-  })
-
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const [swifinId, setSwifinId] = useState('')
+  const [profile, setProfile] = useState<{
+    id?: number
+    name?: string
+    email?: string
+    birthday?: string
+    mobilePhone?: string
+    gender?: string
+    address?: string
+    postalCode?: string
+    city?: string
+    country?: string
+    memberType?: string
+  }>({})
+  const [customValues, setCustomValues] = useState<CustomValue[]>([])
+  const [error, setError] = useState('')
 
+  // grab ?swifinId=... from URL
   useEffect(() => {
-    const storedProfile = sessionStorage.getItem('swifin_profile')
-    if (storedProfile) {
-      const parsed: ParsedProfile = JSON.parse(storedProfile)
-      const getValue = (key: string) => parsed.customValues?.find((v: CustomValue) => v.internalName === key)
-
-      setForm({
-        name: parsed.name || '',
-        email: parsed.email || '',
-        mobilePhone: getValue('mobilePhone')?.value || '',
-        birthday: getValue('birthday')?.value || '',
-        gender: getValue('gender')?.possibleValueId || '',
-        address: getValue('address')?.value || '',
-        postalCode: getValue('postalCode')?.value || '',
-        city: getValue('city')?.value || '',
-        country: getValue('country')?.possibleValueId || '',
-        memberType: getValue('memberType')?.possibleValueId || '',
-      })
-    }
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get('swifinId') || ''
+    setSwifinId(id)
   }, [])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value })
+  // fetch profile once we have swifinId
+  useEffect(() => {
+    if (!swifinId) return
+    fetch('/api/auth/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ swifinId }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const cvs: CustomValue[] = data.customValues
+        setProfile({
+          id: data.id,
+          name: data.name,
+          email: data.email,
+          birthday: cvs.find((cv) => cv.internalName === 'birthday')?.value || '',
+          mobilePhone:
+            cvs.find((cv) => cv.internalName === 'mobilePhone')?.value || '',
+          gender: cvs.find((cv) => cv.internalName === 'gender')?.value || '',
+          address: cvs.find((cv) => cv.internalName === 'address')?.value || '',
+          postalCode:
+            cvs.find((cv) => cv.internalName === 'postalCode')?.value || '',
+          city: cvs.find((cv) => cv.internalName === 'city')?.value || '',
+          country: cvs.find((cv) => cv.internalName === 'country')?.value || '',
+          memberType:
+            cvs.find((cv) => cv.internalName === 'memberType')?.value || '',
+        })
+        setCustomValues(cvs)
+      })
+      .catch((e) => {
+        console.error(e)
+        setError('Failed to load profile')
+      })
+  }, [swifinId])
+
+  // update a customValue in state
+  const updateValue = (field: string, val: string | number) => {
+    setCustomValues((cv) =>
+      cv.map((item) =>
+        item.internalName === field
+          ? {
+              ...item,
+              value: typeof val === 'string' ? val : item.value,
+              possibleValueId:
+                typeof val === 'number' ? val : item.possibleValueId,
+            }
+          : item
+      )
+    )
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
-
-    try {
-      const swifinId = sessionStorage.getItem('swifin_id')
-      const password = sessionStorage.getItem('swifin_password')
-
-      const res = await fetch('/auth/update-profile', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          swifinId,
-          password,
-          ...form,
-          gender: Number(form.gender),
-          country: Number(form.country),
-          memberType: Number(form.memberType),
-        }),
-      })
-
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Profile update failed')
-
-      router.push('/(auth)/verify-otp')
-    } catch (err: any) {
-      setError(err.message || 'Something went wrong')
-    } finally {
-      setLoading(false)
+    const res = await fetch('/api/auth/update-profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        memberId: profile.id,
+        customValues,
+        email: profile.email,
+      }),
+    })
+    const data = await res.json()
+    if (res.ok && data.success) {
+      router.push('/dashboard')
+    } else {
+      setError(data.message || 'Update failed')
     }
   }
 
   return (
-    <div className="max-w-2xl mx-auto mt-10 p-6 border rounded shadow">
-      <h2 className="text-2xl font-bold mb-4">Confirm Your Profile</h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input name="name" value={form.name} onChange={handleChange} placeholder="Full Name" className="p-2 border rounded" required />
-        <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email" className="p-2 border rounded" required />
-        <input name="mobilePhone" value={form.mobilePhone} onChange={handleChange} placeholder="Mobile Phone" className="p-2 border rounded" required />
-        <input name="birthday" type="date" value={form.birthday} onChange={handleChange} className="p-2 border rounded" required />
+    <div className="max-w-lg mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Confirm Your Profile</h1>
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Name (readonly) */}
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={profile.name || ''}
+          disabled
+          className="w-full border rounded p-2 bg-gray-100"
+        />
 
-        <select name="gender" value={form.gender} onChange={handleChange} className="p-2 border rounded" required>
-          <option value="">Select Gender</option>
-          {genders.map(g => (
-            <option key={g.id} value={g.id}>{g.name}</option>
+        {/* Birthday */}
+        <input
+          type="date"
+          value={profile.birthday || ''}
+          onChange={(e) => updateValue('birthday', e.target.value)}
+          className="w-full border rounded p-2"
+        />
+
+        {/* Mobile Phone */}
+        <input
+          type="text"
+          placeholder="Mobile Phone"
+          value={profile.mobilePhone || ''}
+          onChange={(e) => updateValue('mobilePhone', e.target.value)}
+          className="w-full border rounded p-2"
+        />
+
+        {/* Gender */}
+        <select
+          value={
+            genders.find((g) => g.name === profile.gender)?.id.toString() || ''
+          }
+          onChange={(e) => updateValue('gender', Number(e.target.value))}
+          className="w-full border rounded p-2"
+        >
+          <option value="" disabled>
+            Select Gender
+          </option>
+          {genders.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
+            </option>
           ))}
         </select>
 
-        <input name="address" value={form.address} onChange={handleChange} placeholder="Address" className="p-2 border rounded" required />
-        <input name="postalCode" value={form.postalCode} onChange={handleChange} placeholder="Postal Code" className="p-2 border rounded" required />
-        <input name="city" value={form.city} onChange={handleChange} placeholder="City" className="p-2 border rounded" required />
+        {/* Address */}
+        <input
+          type="text"
+          placeholder="Address"
+          value={profile.address || ''}
+          onChange={(e) => updateValue('address', e.target.value)}
+          className="w-full border rounded p-2"
+        />
 
-        <select name="country" value={form.country} onChange={handleChange} className="p-2 border rounded" required>
-          <option value="">Select Country</option>
-          {countries.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
+        {/* Postal Code */}
+        <input
+          type="text"
+          placeholder="Postal Code"
+          value={profile.postalCode || ''}
+          onChange={(e) => updateValue('postalCode', e.target.value)}
+          className="w-full border rounded p-2"
+        />
+
+        {/* City */}
+        <input
+          type="text"
+          placeholder="City"
+          value={profile.city || ''}
+          onChange={(e) => updateValue('city', e.target.value)}
+          className="w-full border rounded p-2"
+        />
+
+        {/* Country */}
+        <select
+          value={
+            countries.find((c) => c.name === profile.country)?.id.toString() ||
+            ''
+          }
+          onChange={(e) => updateValue('country', Number(e.target.value))}
+          className="w-full border rounded p-2"
+        >
+          <option value="" disabled>
+            Select Country
+          </option>
+          {countries.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
           ))}
         </select>
 
-        <select name="memberType" value={form.memberType} onChange={handleChange} className="p-2 border rounded" required>
-          <option value="">Select Member Type</option>
-          {memberTypes.map(m => (
-            <option key={m.id} value={m.id}>{m.name}</option>
+        {/* Member Type */}
+        <select
+          value={
+            memberTypes
+              .find((m) => m.name === profile.memberType)
+              ?.id.toString() || ''
+          }
+          onChange={(e) => updateValue('memberType', Number(e.target.value))}
+          className="w-full border rounded p-2"
+        >
+          <option value="" disabled>
+            Select Member Type
+          </option>
+          {memberTypes.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
           ))}
         </select>
 
-        {error && <p className="text-red-600 col-span-2">{error}</p>}
-
-        <button type="submit" disabled={loading} className="col-span-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700">
-          {loading ? 'Submitting...' : 'Confirm and Continue'}
+        {/* Submit */}
+        <button
+          type="submit"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded"
+        >
+          Confirm Profile
         </button>
       </form>
     </div>

@@ -1,45 +1,77 @@
 
 > frontend@1.0.0 build /root/swifin-app/apps/frontend
-> next build
+> prisma generate --schema=../backend/prisma/schema.prisma && next build
 
+[2mEnvironment variables loaded from .env[22m
+[2mPrisma schema loaded from ../backend/prisma/schema.prisma[22m
+
+✔ Generated [1mPrisma Client[22m (4.16.2 | library)[2m to ./../../node_modules/.pnpm/@prisma+client@4.16.2_prisma@4.16.2/node_modules/@prisma/client[22m in 264ms
+You can now start using Prisma Client in your code. Reference: [4mhttps://pris.ly/d/client[24m
+[2m```[22m
+[36mimport[39m [34m{[39m PrismaClient [34m}[39m [36mfrom[39m [1m[32m'@prisma/client'[39m[22m
+[36mconst[39m prisma = [36mnew[39m PrismaClient[34m([39m[34m)[39m
+[2m```[22m
 [Browserslist] Could not parse /root/package.json. Ignoring it.
   [1m[38;2;173;127;168m▲ Next.js 14.2.28[39m[22m
   - Environments: .env.local, .env
 
  [37m[1m [22m[39m Creating an optimized production build ...
  [32m[1m✓[22m[39m Compiled successfully
-[?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
-[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
-[?25l [37m[1m [22m[39m Generating static pages (0/21)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/21)  [36m[=   ][39m[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages (21/21)
-[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
+[?25l [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m..[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m...[39m[2K[1G [37m[1m [22m[39m Linting and checking validity of types  [36m.[39m[2K[1G[?25h [37m[1m [22m[39m Linting and checking validity of types     [32m[1m✓[22m[39m Linting and checking validity of types 
+[?25l [37m[1m [22m[39m Collecting page data  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting page data  [36m...[39mwarn(prisma) Conflict for env vars PORT, DATABASE_URL, SWIFIN_REST_API, SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SWIFIN_API_URL, STRIPE_SECRET_KEY, FLUTTERWAVE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_SECRET, COINBASE_API_KEY, COINPAYMENTS_PUBLIC_KEY in ../../.env and .env
+Env vars from .env overwrite the ones from ../../.env
+      
+warn(prisma) Conflict for env vars PORT, DATABASE_URL, SWIFIN_REST_API, SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SWIFIN_API_URL, STRIPE_SECRET_KEY, FLUTTERWAVE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_SECRET, COINBASE_API_KEY, COINPAYMENTS_PUBLIC_KEY in ../../.env and .env
+Env vars from .env overwrite the ones from ../../.env
+      
+warn(prisma) Conflict for env vars PORT, DATABASE_URL, SWIFIN_REST_API, SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SWIFIN_API_URL, STRIPE_SECRET_KEY, FLUTTERWAVE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_SECRET, COINBASE_API_KEY, COINPAYMENTS_PUBLIC_KEY in ../../.env and .env
+Env vars from .env overwrite the ones from ../../.env
+      
+warn(prisma) Conflict for env vars PORT, DATABASE_URL, SWIFIN_REST_API, SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SWIFIN_API_URL, STRIPE_SECRET_KEY, FLUTTERWAVE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_SECRET, COINBASE_API_KEY, COINPAYMENTS_PUBLIC_KEY in ../../.env and .env
+Env vars from .env overwrite the ones from ../../.env
+      
+[2K[1G[?25h [37m[1m [22m[39m Collecting page data     [32m[1m✓[22m[39m Collecting page data 
+[?25l [37m[1m [22m[39m Generating static pages (0/23)  [36m[    ][39m[2K[1G [37m[1m [22m[39m Generating static pages (0/23)  [36m[=   ][39mwarn(prisma) Conflict for env vars PORT, DATABASE_URL, SWIFIN_REST_API, SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SWIFIN_API_URL, STRIPE_SECRET_KEY, FLUTTERWAVE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_SECRET, COINBASE_API_KEY, COINPAYMENTS_PUBLIC_KEY in ../../.env and .env
+Env vars from .env overwrite the ones from ../../.env
+      
+warn(prisma) Conflict for env vars PORT, DATABASE_URL, SWIFIN_REST_API, SWIFIN_SOAP_ENDPOINT, ADMIN_SWIFIN_ID, ADMIN_SWIFIN_PASSWORD, NEXT_PUBLIC_APP_URL, NEXT_PUBLIC_SWIFIN_API_URL, STRIPE_SECRET_KEY, FLUTTERWAVE_SECRET_KEY, PAYPAL_CLIENT_ID, PAYPAL_SECRET, COINBASE_API_KEY, COINPAYMENTS_PUBLIC_KEY in ../../.env and .env
+Env vars from .env overwrite the ones from ../../.env
+      
+[2K[1G[?25h [32m[1m✓[22m[39m Generating static pages (23/23)
+[?25l [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[?25l [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m.[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m.[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m..[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m..[39m[2K[1G [37m[1m [22m[39m Finalizing page optimization  [36m...[39m[2K[1G [37m[1m [22m[39m Collecting build traces  [36m...[39m[2K[1G[?25h [37m[1m [22m[39m Collecting build traces     [32m[1m✓[22m[39m Collecting build traces 
 [2K[1G[?25h [37m[1m [22m[39m Finalizing page optimization     [32m[1m✓[22m[39m Finalizing page optimization 
 
 [4mRoute (app)[24m                              [4mSize[24m     [4mFirst Load JS[24m
-┌ ○ /                                    177 B          [37m[1m96.4 kB[22m[39m
-├ ○ /_not-found                          877 B          [37m[1m88.4 kB[22m[39m
-├ ○ /about                               157 B          [37m[1m87.7 kB[22m[39m
-├ ○ /admin/dashboard                     124 kB          [37m[1m307 kB[22m[39m
-├ ○ /confirm-profile                     3.31 kB        [37m[1m90.8 kB[22m[39m
-├ ○ /contact                             157 B          [37m[1m87.7 kB[22m[39m
+┌ ○ /                                    176 B          [37m[1m96.4 kB[22m[39m
+├ ○ /_not-found                          876 B          [37m[1m88.4 kB[22m[39m
+├ ○ /about                               156 B          [37m[1m87.7 kB[22m[39m
+├ ○ /admin/dashboard                     126 kB          [37m[1m309 kB[22m[39m
+├ ƒ /api/auth/email-check                0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/profile                    0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/swifin-id-login            0 B                [37m[1m0 B[22m[39m
+├ ƒ /api/auth/update-profile             0 B                [37m[1m0 B[22m[39m
+├ ○ /confirm-profile                     3.3 kB         [37m[1m90.8 kB[22m[39m
+├ ○ /contact                             156 B          [37m[1m87.7 kB[22m[39m
 ├ ○ /dashboard                           71.1 kB         [37m[1m159 kB[22m[39m
-├ ○ /email-entry                         731 B          [37m[1m88.3 kB[22m[39m
+├ ○ /email-entry                         975 B          [37m[1m88.5 kB[22m[39m
 ├ ○ /has-swifin-id                       1.31 kB        [37m[1m88.8 kB[22m[39m
-├ ○ /login                               840 B          [37m[1m88.4 kB[22m[39m
-├ ○ /login/verify-otp                    765 B          [37m[1m88.3 kB[22m[39m
-├ ○ /login/with-id                       908 B          [37m[1m88.4 kB[22m[39m
-├ ○ /marketplace                         157 B          [37m[1m87.7 kB[22m[39m
-├ ○ /privacy                             157 B          [37m[1m87.7 kB[22m[39m
+├ ○ /login                               837 B          [37m[1m88.4 kB[22m[39m
+├ ○ /login/verify-otp                    763 B          [37m[1m88.3 kB[22m[39m
+├ ○ /login/with-id                       906 B          [37m[1m88.4 kB[22m[39m
+├ ○ /marketplace                         156 B          [37m[1m87.7 kB[22m[39m
+├ ○ /privacy                             156 B          [37m[1m87.7 kB[22m[39m
 ├ ○ /register-new                        3.06 kB        [37m[1m90.6 kB[22m[39m
-├ ○ /swifin-id-check                     562 B          [37m[1m88.1 kB[22m[39m
-├ ○ /terms                               157 B          [37m[1m87.7 kB[22m[39m
+├ ○ /swifin-id-check                     890 B          [37m[1m88.4 kB[22m[39m
+├ ○ /terms                               156 B          [37m[1m87.7 kB[22m[39m
 ├ ○ /verify-otp                          1.18 kB        [37m[1m88.7 kB[22m[39m
 └ ○ /wallet/activate                     3.98 kB         [37m[1m187 kB[22m[39m
 + First Load JS shared by all            [37m[1m87.5 kB[22m[39m
-  ├ chunks/337-660b356462348cd7.js       31.7 kB
-  ├ chunks/e6a554b1-33afd113c577f924.js  53.6 kB
+  ├ chunks/311-8bfc81f3a502234b.js       31.8 kB
+  ├ chunks/99b91021-9c65e17a3d08729e.js  53.6 kB
   └ other shared chunks (total)          2.14 kB
 
 
-○  (Static)  prerendered as static content
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
 
 [?25h

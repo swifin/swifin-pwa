@@ -1,50 +1,66 @@
 "use strict";
+// apps/backend/src/controllers/admin/adminController.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toggleVendorStatus = exports.getVendors = exports.getActivityLogs = exports.getTopContributors = exports.getAdminSummary = void 0;
 const prisma_1 = require("../../lib/prisma");
 const client_1 = require("@prisma/client");
+/**
+ * GET /admin/summary
+ * Returns counts and totals for users, wallets, transactions.
+ */
 const getAdminSummary = async (_req, res) => {
     try {
-        const [users, wallets, transactions, sfncTotal, sfnlTotal] = await Promise.all([
+        const [usersCount, walletsCount, transactionsCount, sfncAgg, sfnlAgg] = await Promise.all([
             prisma_1.prisma.user.count(),
             prisma_1.prisma.wallet.count(),
             prisma_1.prisma.transaction.count(),
             prisma_1.prisma.wallet.aggregate({ _sum: { sfnc_balance: true } }),
             prisma_1.prisma.wallet.aggregate({ _sum: { sfnl_balance: true } }),
         ]);
+        const sfncTotal = sfncAgg._sum.sfnc_balance?.toNumber() ?? 0;
+        const sfnlTotal = sfnlAgg._sum.sfnl_balance?.toNumber() ?? 0;
         return res.json({
-            users,
-            wallets,
-            transactions,
-            sfncTotal: sfncTotal._sum.sfnc_balance?.toNumber() || 0,
-            sfnlTotal: sfnlTotal._sum.sfnl_balance?.toNumber() || 0,
+            users: usersCount,
+            wallets: walletsCount,
+            transactions: transactionsCount,
+            sfncTotal,
+            sfnlTotal,
         });
     }
     catch (error) {
         console.error('Admin Summary Error:', error);
-        return res.status(500).json({ error: 'Something went wrong' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.getAdminSummary = getAdminSummary;
+/**
+ * GET /admin/top-contributors
+ * Returns top 5 wallets by SFNL balance.
+ */
 const getTopContributors = async (_req, res) => {
     try {
-        const topContributors = await prisma_1.prisma.wallet.findMany({
+        const top = await prisma_1.prisma.wallet.findMany({
             orderBy: { sfnl_balance: 'desc' },
             take: 5,
             include: { user: { select: { name: true, swifin_id: true } } },
         });
-        return res.json(topContributors.map((wallet) => ({
-            name: wallet.user?.name || 'Unnamed',
-            swifinId: wallet.user?.swifin_id || 'Unknown',
-            sfnl: wallet.sfnl_balance.toNumber(),
-        })));
+        const result = top.map((w) => ({
+            name: w.user?.name ?? 'Unknown',
+            swifinId: w.user?.swifin_id ?? '',
+            sfnl: w.sfnl_balance.toNumber(),
+        }));
+        return res.json(result);
     }
-    catch (err) {
-        console.error('Top Contributors Error:', err);
-        return res.status(500).json({ error: 'Could not fetch top contributors' });
+    catch (error) {
+        console.error('Top Contributors Error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.getTopContributors = getTopContributors;
+/**
+ * GET /admin/activity-logs
+ * Returns the 10 most recent transactions.
+ */
 const getActivityLogs = async (_req, res) => {
     try {
         const logs = await prisma_1.prisma.transaction.findMany({
@@ -58,73 +74,72 @@ const getActivityLogs = async (_req, res) => {
                 user: { select: { name: true, swifin_id: true } },
             },
         });
-        return res.json(logs.map((tx) => ({
+        const result = logs.map((tx) => ({
             id: tx.id,
             type: tx.type,
             amount: tx.amount_sfnc.toNumber(),
             time: tx.created_at,
-            user: tx.user?.name || 'Unknown',
-            swifinId: tx.user?.swifin_id || 'Unknown',
-        })));
+            user: tx.user?.name ?? 'Unknown',
+            swifinId: tx.user?.swifin_id ?? '',
+        }));
+        return res.json(result);
     }
-    catch (err) {
-        console.error('Activity Logs Error:', err);
-        return res.status(500).json({ error: 'Could not fetch logs' });
+    catch (error) {
+        console.error('Activity Logs Error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.getActivityLogs = getActivityLogs;
+/**
+ * GET /admin/vendors
+ * Returns vendor details, including total revenue.
+ */
 const getVendors = async (_req, res) => {
     try {
         const vendors = await prisma_1.prisma.vendor.findMany({
             include: {
-                user: {
-                    select: {
-                        name: true,
-                        email: true,
-                        swifin_id: true,
-                    },
-                },
-                transactions: {
-                    select: {
-                        amount_sfnc: true,
-                    },
-                },
+                user: { select: { name: true, email: true, swifin_id: true } },
+                transactions: { select: { amount_sfnc: true } },
             },
         });
-        const vendorList = vendors.map((vendor) => {
-            const revenue = vendor.transactions.reduce((sum, tx) => {
-                return sum + tx.amount_sfnc.toNumber();
-            }, 0);
+        const list = vendors.map((v) => {
+            const revenue = v.transactions.reduce((sum, tx) => sum + tx.amount_sfnc.toNumber(), 0);
             return {
-                id: vendor.id,
-                type: vendor.vendor_type,
-                active: vendor.status === client_1.$Enums.VendorStatus.active,
-                name: vendor.user?.name || 'N/A',
-                email: vendor.user?.email || '',
-                swifinId: vendor.user?.swifin_id || '',
+                id: v.id,
+                type: v.vendor_type,
+                active: v.status === client_1.VendorStatus.active,
+                name: v.user?.name ?? '',
+                email: v.user?.email ?? '',
+                swifinId: v.user?.swifin_id ?? '',
                 revenue,
             };
         });
-        return res.json(vendorList);
+        return res.json(list);
     }
     catch (error) {
         console.error('Get Vendors Error:', error);
-        return res.status(500).json({ error: 'Could not fetch vendors' });
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.getVendors = getVendors;
+/**
+ * POST /admin/vendors/toggle-status
+ * Body: { vendorId: string, active: boolean }
+ */
 const toggleVendorStatus = async (req, res) => {
     const { vendorId, active } = req.body;
     try {
         const updated = await prisma_1.prisma.vendor.update({
             where: { id: vendorId },
-            data: { status: active ? client_1.$Enums.VendorStatus.active : client_1.$Enums.VendorStatus.suspended },
+            data: {
+                status: active ? client_1.VendorStatus.active : client_1.VendorStatus.suspended,
+            },
         });
-        return res.json({ success: true, updated });
+        return res.json({ success: true, vendor: updated });
     }
-    catch (err) {
-        console.error('Toggle Vendor Status Error:', err);
-        return res.status(500).json({ error: 'Could not update vendor status' });
+    catch (error) {
+        console.error('Toggle Vendor Status Error:', error);
+        return res.status(500).json({ error: 'Internal server error' });
     }
 };
 exports.toggleVendorStatus = toggleVendorStatus;
