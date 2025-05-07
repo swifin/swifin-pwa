@@ -3,9 +3,9 @@ out/
 node_modules/
 .DS_Store
 .env.local
-
 .next/
 out/
 node_modules/
 .DS_Store
 .env.local
+.turbo/
