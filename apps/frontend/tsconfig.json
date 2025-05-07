@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "moduleResolution": "bundler",               // ✅ FIXED: Supports .mts types (Tailwind v4+)
+    "module": "ESNext",
+    "target": "ESNext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -8,15 +10,13 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",                       // ✅ Required for path aliases
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]                      // ✅ Alias `@/` to the frontend root
+      "@/*": ["./*"]
     },
     "plugins": [
       {

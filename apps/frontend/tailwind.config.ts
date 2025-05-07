@@ -7,12 +7,12 @@ const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
-    './styles/**/*.css', // ✅ Correct
+    './styles/**/*.{css,scss}', // ✅ Correct
   ],
   theme: {
     extend: {},
   },
-  plugins: [require('@tailwindcss/forms')],
+  plugins: [forms],
 }
 
 export default config
