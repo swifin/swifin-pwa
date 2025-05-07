@@ -42,7 +42,7 @@ export default function SwifinIdCheckPage() {
           placeholder="Swifin ID"
           value={swifinId}
           onChange={(e) => setSwifinId(e.currentTarget.value)}
-          className="w-full border rounded p-2"
+          className="w-full border rounded-md p-2"
           required
         />
         <input
@@ -50,7 +50,7 @@ export default function SwifinIdCheckPage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.currentTarget.value)}
-          className="w-full border rounded p-2"
+          className="w-full border rounded-md p-2"
           required
         />
         <button

@@ -1,5 +1,6 @@
 // apps/frontend/app/layout.tsx
-import '@/styles/globals.css'
+import '../styles/globals.css'  // ✅ Explicit relative path
+
 import type { Metadata } from 'next'
 import { ReactNode } from 'react'
 import { Inter } from 'next/font/google'

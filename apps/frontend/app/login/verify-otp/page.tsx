@@ -40,7 +40,7 @@ export default function VerifyOtpPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="w-full p-2 border rounded mb-4"
+          className="w-full p-2 border rounded-md mb-4"
         />
         <input
           type="text"
@@ -48,11 +48,11 @@ export default function VerifyOtpPage() {
           value={otp}
           onChange={(e) => setOtp(e.target.value)}
           required
-          className="w-full p-2 border rounded mb-4"
+          className="w-full p-2 border rounded-md mb-4"
         />
         <button
           type="submit"
-          className="w-full bg-green-600 text-white p-2 rounded">
+          className="w-full bg-green-600 text-white p-2 rounded-md">
           {loading ? 'Verifying...' : 'Verify OTP'}
         </button>
       </form>

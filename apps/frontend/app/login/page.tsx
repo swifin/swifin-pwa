@@ -30,7 +30,7 @@ export default function EmailLoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-md">
+      <div className="w-full max-w-md rounded-md bg-white p-6 shadow-md">
         <h2 className="text-2xl font-bold mb-4 text-center">🔐 Enter your Email</h2>
         <form onSubmit={handleSubmit}>
           <input
@@ -39,12 +39,12 @@ export default function EmailLoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full p-3 border border-gray-300 rounded mb-4"
+            className="w-full p-3 border border-gray-300 rounded-md mb-4"
           />
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
           >
             {loading ? 'Checking...' : 'Continue'}
           </button>
