@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*":           ["apps/frontend/*"],
+      "@/components/*":["apps/frontend/components/*"],
+      "@/lib/*":       ["apps/frontend/lib/*"],
+      "@/styles/*":    ["apps/frontend/styles/*"],
+      "backend/*":     ["apps/backend/src/*"]
+    },
+    "composite": true,
+    "skipLibCheck": true
+  },
+  "references": [
+    { "path": "apps/frontend" },
+    { "path": "apps/backend" }
+  ]
+}
+

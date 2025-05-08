@@ -1,18 +1,15 @@
-//apps/frontend/tailwind.config.ts
 import type { Config } from 'tailwindcss'
-import forms from '@tailwindcss/forms'
-
 
 const config: Config = {
   content: [
     './app/**/*.{js,ts,jsx,tsx}',
     './components/**/*.{js,ts,jsx,tsx}',
-    './styles/**/*.{css,scss}', // ✅ Correct
+    './styles/**/*.{css,scss}',
   ],
   theme: {
     extend: {},
   },
-  plugins: [forms],
+  plugins: [require('@tailwindcss/forms')],
 }
 
 export default config

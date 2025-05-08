@@ -2,9 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
-/* DO NOT import plugins here! */
-
-.input {
-  @apply w-full border rounded p-2;
+/* any additional global overrides below */
+html {
+  scroll-behavior: smooth;
 }
 
